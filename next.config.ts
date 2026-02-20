@@ -15,10 +15,14 @@ const remotePatterns: RemotePattern[] = (() => {
         protocol: normalizedProtocol,
         hostname,
         port: port || undefined,
+        pathname: "/**",
       },
     ];
   } catch (error) {
-    console.warn("Unable to parse NEXT_PUBLIC_STRAPI_BASE_URL for image optimization", error);
+    // Log parsing issues only in development
+    if (process.env.NODE_ENV === "development") {
+      console.warn("Unable to parse NEXT_PUBLIC_STRAPI_BASE_URL for image optimization", error);
+    }
     return [];
   }
 })();
@@ -27,6 +31,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns,
+    dangerouslyAllowLocalIP: true,
   },
   turbopack: {
     root: __dirname,

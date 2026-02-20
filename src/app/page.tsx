@@ -4,15 +4,15 @@ import { WhatIWrite } from "@/components/home/what-i-write";
 import { Testimonials } from "@/components/home/testimonials";
 import { AboutTeaser } from "@/components/home/about-teaser";
 import { FinalCTA } from "@/components/home/final-cta";
-import { getBlogPosts } from "@/lib/strapi/blog";
+import { getBlogPosts, getPortfolioPosts } from "@/lib/strapi/blog";
 
 export default async function Home() {
-  // Fetch featured posts from Strapi
+  // Fetch featured posts from Strapi (posts explicitly marked with isFeatured: true)
   const { posts: featuredPosts } = await getBlogPosts({ featured: true, pageSize: 3 });
 
-  // If no featured posts, fetch latest 3
+  // If no featured posts, fallback to latest 3 portfolio posts (showcasing professional work)
   const displayPosts =
-    featuredPosts.length > 0 ? featuredPosts : (await getBlogPosts({ pageSize: 3 })).posts;
+    featuredPosts.length > 0 ? featuredPosts : (await getPortfolioPosts({ pageSize: 3 })).posts;
 
   return (
     <>

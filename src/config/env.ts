@@ -19,6 +19,12 @@ const clientSchema = z.object({
     .min(1)
     .max(50)
     .default(6),
+  NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS: z
+    .coerce.number()
+    .int()
+    .min(0)
+    .max(3600)
+    .default(60),
 });
 
 const serverSchema = z.object({
@@ -44,6 +50,7 @@ const clientEnv = parse<ClientEnv>(clientSchema, {
   NEXT_PUBLIC_STRAPI_BASE_URL: process.env.NEXT_PUBLIC_STRAPI_BASE_URL,
   NEXT_PUBLIC_REQUEST_ID_HEADER: process.env.NEXT_PUBLIC_REQUEST_ID_HEADER,
   NEXT_PUBLIC_DEFAULT_PAGE_SIZE: process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE,
+  NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS: process.env.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
 });
 
 let serverEnv: ServerEnv | null = null;

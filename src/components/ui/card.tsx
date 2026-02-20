@@ -16,20 +16,46 @@ const variantStyles = {
 interface CardProps extends Omit<HTMLAttributes<HTMLElement>, 'onAnimationStart' | 'onDragStart' | 'onDragEnd' | 'onDrag'> {
   variant?: keyof typeof variantStyles;
   as?: "div" | "article" | "section" | "blockquote";
+  disableHoverAnimation?: boolean;
 }
 
 export const Card = forwardRef<HTMLElement, CardProps>(
-  ({ variant = "default", as: Component = "div", className, children, ...props }, ref) => {
+  ({ variant = "default", as: Component = "div", className, children, disableHoverAnimation = false, ...props }, ref) => {
     const MotionComponent = motion[Component as "div"];
     
     const isInteractive = variant === "interactive";
+    const isElevated = variant === "elevated";
     
-    const motionProps: HTMLMotionProps<"div"> = isInteractive
-      ? {
-          whileHover: { y: -6, scale: 1.01 },
-          transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-        }
-      : {};
+    // Smoother, more refined hover animations
+    const getMotionProps = (): HTMLMotionProps<"div"> => {
+      if (disableHoverAnimation) return {};
+      
+      if (isInteractive) {
+        return {
+          whileHover: { y: -4, scale: 1.005 },
+          transition: { 
+            type: "spring",
+            stiffness: 400,
+            damping: 30,
+            mass: 0.8
+          },
+        };
+      }
+      
+      if (isElevated) {
+        return {
+          whileHover: { y: -2 },
+          transition: { 
+            type: "spring",
+            stiffness: 500,
+            damping: 35,
+            mass: 0.5
+          },
+        };
+      }
+      
+      return {};
+    };
 
     return (
       <MotionComponent
@@ -39,7 +65,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(
           variantStyles[variant],
           className
         )}
-        {...motionProps}
+        {...getMotionProps()}
         {...(props as any)}
       >
         {/* Subtle gradient overlay for depth */}

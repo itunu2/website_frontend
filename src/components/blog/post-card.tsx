@@ -4,84 +4,176 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Tag } from "@/components/ui/tag";
+import { ArrowRightIcon } from "@/components/ui/icons";
+import { formatDate, estimateReadingTime } from "@/lib/blog-utils";
 import type { BlogPost } from "@/lib/strapi/types";
 import { siteRoutes } from "@/config/site";
 
 interface PostCardProps {
   post: BlogPost;
   variant?: "featured" | "standard";
-  hoverable?: boolean;
+  showLabel?: string;
 }
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-};
-
-const estimateReadingTime = (content: string): string => {
-  const wordsPerMinute = 200;
-  const words = content.split(/\s+/).length;
-  const minutes = Math.ceil(words / wordsPerMinute);
-  return `${minutes} min read`;
-};
-
-export const PostCard = ({ post, variant = "standard" }: Omit<PostCardProps, 'hoverable'>) => {
+export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProps) => {
   const isFeatured = variant === "featured";
   const postUrl = `${siteRoutes.blog}/${post.slug}`;
   const featuredImageData = post.featuredImage?.data;
 
+  if (isFeatured) {
+    return (
+      <Card 
+        as="article" 
+        variant="elevated" 
+        className="group overflow-hidden"
+      >
+        <Link 
+          href={postUrl} 
+          className="grid gap-0 md:grid-cols-5 md:gap-0"
+        >
+          {/* Image Section */}
+          {featuredImageData && (
+            <div className="relative aspect-4/3 w-full overflow-hidden md:col-span-3 md:aspect-auto md:min-h-[480px]">
+              <div className="absolute inset-0 z-10 bg-linear-to-r from-black/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+              <Image
+                src={featuredImageData.attributes.url}
+                alt={featuredImageData.attributes.alternativeText || post.title}
+                fill
+                className="object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105"
+                priority
+              />
+            </div>
+          )}
+
+          {/* Content Section */}
+          <div className="flex flex-col justify-center gap-6 bg-bg-elevated p-8 md:col-span-2 md:p-10 lg:p-12">
+            {/* Category/Tag */}
+            {post.tags && post.tags.length > 0 && (
+              <p className="text-caption font-bold uppercase tracking-[0.25em] text-accent-primary">
+                {showLabel ? `${showLabel} · ${post.tags[0]}` : post.tags[0]}
+              </p>
+            )}
+
+            {/* Title */}
+            <h2 className="font-display text-h1 font-bold leading-[1.1] text-text-primary transition-colors duration-200 group-hover:text-accent-primary lg:text-display">
+              {post.title}
+            </h2>
+
+            {/* Description */}
+            {post.description && (
+              <p className="text-body-lg leading-[1.7] text-text-muted line-clamp-3">
+                {post.description}
+              </p>
+            )}
+
+            <div className="flex flex-col gap-6">
+              {/* Metadata */}
+              <div className="flex items-center gap-3 text-body-sm font-medium text-text-tertiary">
+                <time dateTime={post.publishedDate}>
+                  {formatDate(post.publishedDate)}
+                </time>
+                <span className="text-text-soft">·</span>
+                <span>{estimateReadingTime(post.content)}</span>
+              </div>
+
+              {/* Additional Tags */}
+              {post.tags && post.tags.length > 1 && (
+                <div className="flex flex-wrap gap-2">
+                  {post.tags.slice(1, 4).map((tag) => (
+                    <Tag key={tag} variant="default">
+                      {tag}
+                    </Tag>
+                  ))}
+                </div>
+              )}
+
+              {/* Read More Indicator */}
+              <div className="flex items-center gap-2 text-body font-bold text-accent-primary transition-all duration-200 group-hover:gap-3">
+                <span className="transition-transform duration-200 group-hover:translate-x-0.5">Read the full story</span>
+                <ArrowRightIcon className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
+              </div>
+            </div>
+          </div>
+        </Link>
+      </Card>
+    );
+  }
+
+  // Standard variant
   return (
-    <Card as="article" variant="interactive" className="group flex-1 flex flex-col">
-      <Link href={postUrl} className="flex flex-1 flex-col">
-        {featuredImageData && (
-          <div className="relative mb-4 aspect-video w-full overflow-hidden rounded-lg">
+    <Card as="article" variant="interactive" className="group flex h-full flex-col p-0!">
+      <Link href={postUrl} className="flex h-full flex-col p-6 md:p-7">
+        {/* Fixed aspect ratio image - always same size */}
+        {featuredImageData ? (
+          <div className="relative mb-5 aspect-video w-full shrink-0 overflow-hidden rounded-lg">
+            <div className="absolute inset-0 z-10 bg-linear-to-t from-black/10 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <Image
               src={featuredImageData.attributes.url}
               alt={featuredImageData.attributes.alternativeText || post.title}
               fill
-              className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out will-change-transform group-hover:scale-105"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
+          </div>
+        ) : (
+          <div className="relative mb-5 flex aspect-video w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bg-soft">
+            <svg
+              className="h-16 w-16 text-text-soft opacity-20"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
+            </svg>
           </div>
         )}
 
-        <div className="flex flex-1 flex-col">
-          {post.tags && post.tags.length > 0 && (
-            <p className="mb-2 text-caption font-medium uppercase tracking-wider text-accent-primary">
-              {post.tags[0]}
-            </p>
-          )}
+        {/* Content section with consistent spacing */}
+        <div className="flex flex-1 flex-col text-left">
+          {/* Tag - fixed height to prevent shifts */}
+          <div className="mb-3 h-4">
+            {post.tags && post.tags.length > 0 && (
+              <p className="text-caption font-bold uppercase tracking-[0.25em] text-accent-primary">
+                {post.tags[0]}
+              </p>
+            )}
+          </div>
 
-          <h3
-            className={`mb-3 font-display font-semibold text-text-primary transition-colors duration-150 group-hover:text-accent-primary ${
-              isFeatured ? "text-h2" : "text-h3"
-            }`}
-          >
+          {/* Title - clamped to 2 lines for consistency */}
+          <h3 className="mb-3 font-display text-h3 font-bold leading-[1.2] text-text-primary transition-colors duration-200 group-hover:text-accent-primary line-clamp-2">
             {post.title}
           </h3>
 
-          {post.description && (
-            <p className="mb-4 flex-1 text-body leading-relaxed text-text-secondary line-clamp-3">{post.description}</p>
-          )}
+          {/* Description - always 3 lines */}
+          <p className="mb-4 min-h-18 text-body leading-normal text-text-muted line-clamp-3">
+            {post.description || "Read more to discover the full story..."}
+          </p>
 
-          <div className="flex items-center gap-2 text-body-sm text-text-tertiary">
+          {/* Metadata - pushed to bottom */}
+          <div className="mt-auto flex items-center gap-2 text-body-sm font-medium text-text-tertiary">
             <time dateTime={post.publishedDate}>{formatDate(post.publishedDate)}</time>
             <span>·</span>
             <span>{estimateReadingTime(post.content)}</span>
           </div>
 
-          {post.tags && post.tags.length > 1 && (
-            <div className="mt-4 flex flex-wrap gap-2">
-              {post.tags.slice(0, 3).map((tag) => (
-                <Tag key={tag} variant="default">
-                  {tag}
-                </Tag>
-              ))}
-            </div>
-          )}
+          {/* Optional tags - fixed height section */}
+          <div className="mt-3 min-h-8">
+            {post.tags && post.tags.length > 1 && (
+              <div className="flex flex-wrap gap-2">
+                {post.tags.slice(1, 3).map((tag) => (
+                  <Tag key={tag} variant="default">
+                    {tag}
+                  </Tag>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </Link>
     </Card>

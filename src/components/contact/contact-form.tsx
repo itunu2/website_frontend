@@ -24,8 +24,8 @@ export default function ContactForm() {
     setIsSubmitting(true);
     setSubmitStatus("idle");
 
-    // TODO: Wire up to actual form endpoint
-    // For now, simulate submission
+    // Note: Implement form submission endpoint when ready
+    // Example: await fetch('/api/contact', { method: 'POST', body: JSON.stringify(formState) })
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     setIsSubmitting(false);

@@ -3,11 +3,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
-import { Prose } from "@/components/ui/prose";
 import { Tag } from "@/components/ui/tag";
 import { Button } from "@/components/ui/button";
-import { getBlogPostBySlug, getBlogPosts } from "@/lib/strapi/blog";
-import { parseMarkdown } from "@/lib/markdown";
+import { PostCard } from "@/components/blog/post-card";
+import { getBlogPostBySlug, getBlogPosts, getRelatedPosts } from "@/lib/strapi/blog";
+import { MarkdownContent } from "@/components/markdown/markdown-content";
 import { siteRoutes } from "@/config/site";
 import type { Metadata } from "next";
 
@@ -63,6 +63,7 @@ export default async function PostPage({ params }: PostPageProps) {
   }
 
   const featuredImageData = post.featuredImage?.data;
+  const relatedPosts = await getRelatedPosts(post, 3);
 
   return (
     <>
@@ -122,28 +123,62 @@ export default async function PostPage({ params }: PostPageProps) {
       <Section className="bg-bg-page">
         <Container>
           <div className="mx-auto max-w-3xl">
-            <Prose>
-              <div dangerouslySetInnerHTML={{ __html: parseMarkdown(post.content) }} />
-            </Prose>
+            <MarkdownContent content={post.content} />
           </div>
         </Container>
       </Section>
 
-      {/* Footer */}
+      {/* Related Posts */}
+      {relatedPosts.length > 0 && (
+        <Section className="bg-bg-page border-t border-border-subtle">
+          <Container>
+            <div className="mx-auto max-w-5xl">
+              <h2 className="mb-8 text-h3 font-semibold text-text-primary">Related Posts</h2>
+              <div className="grid gap-8 md:grid-cols-3">
+                {relatedPosts.map((relatedPost) => (
+                  <PostCard key={relatedPost.id} post={relatedPost} />
+                ))}
+              </div>
+            </div>
+          </Container>
+        </Section>
+      )}
+
+      {/* Footer Navigation */}
       <Section className="bg-bg-soft">
         <Container>
-          <div className="mx-auto max-w-3xl border-t border-border-subtle pt-8">
-            <div className="flex items-center justify-between">
-              <Link
-                href={siteRoutes.blog}
-                className="text-body text-accent-primary transition-colors hover:text-accent-strong"
-              >
-                ← Back to blog
-              </Link>
+          <div className="mx-auto max-w-3xl">
+            <nav aria-label="Breadcrumb" className="mb-6">
+              <ol className="flex items-center gap-2 text-body-sm text-text-muted">
+                <li>
+                  <Link href={siteRoutes.home} className="hover:text-accent-primary transition-colors">
+                    Home
+                  </Link>
+                </li>
+                <li>/</li>
+                <li>
+                  <Link href={siteRoutes.blog} className="hover:text-accent-primary transition-colors">
+                    Blog
+                  </Link>
+                </li>
+                <li>/</li>
+                <li className="text-text-primary">{post.title}</li>
+              </ol>
+            </nav>
 
-              <Button href={siteRoutes.contact} variant="secondary" size="sm">
-                Get in touch
-              </Button>
+            <div className="border-t border-border-subtle pt-8">
+              <div className="flex items-center justify-between">
+                <Link
+                  href={siteRoutes.blog}
+                  className="text-body text-accent-primary transition-colors hover:text-accent-strong"
+                >
+                  ← Back to blog
+                </Link>
+
+                <Button href={siteRoutes.contact} variant="secondary" size="sm">
+                  Get in touch
+                </Button>
+              </div>
             </div>
           </div>
         </Container>

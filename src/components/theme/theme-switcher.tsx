@@ -46,14 +46,8 @@ interface ThemeSwitcherProps {
 }
 
 export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
-  const [mode, setMode] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") {
-      return "auto";
-    }
-
-    const stored = window.localStorage.getItem(themeStorageKey);
-    return isThemeMode(stored) ? stored : "auto";
-  });
+  const [mode, setMode] = useState<ThemeMode>("auto");
+  const [hydrated, setHydrated] = useState(false);
   const modeRef = useRef<ThemeMode>("auto");
 
   const applyMode = useCallback(
@@ -93,9 +87,11 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
     }
 
     const stored = window.localStorage.getItem(themeStorageKey);
-    if (isThemeMode(stored) && stored !== modeRef.current) {
-      requestAnimationFrame(() => setMode(stored));
+    if (isThemeMode(stored)) {
+      setMode(stored);
+      modeRef.current = stored;
     }
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
@@ -154,7 +150,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
             whileTap={{ scale: 0.95 }}
           >
             <AnimatePresence>
-              {isActive && (
+              {isActive && hydrated && (
                 <motion.span
                   layoutId="theme-indicator"
                   className="absolute inset-0 rounded-full bg-bg-elevated"

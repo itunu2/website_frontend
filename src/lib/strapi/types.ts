@@ -57,3 +57,29 @@ export interface BlogPostAttributes {
 export interface BlogPost extends BlogPostAttributes {
   id: number;
 }
+
+// Tag conventions for content categorization
+export const BLOG_TAGS = ["essay", "thoughts", "journal", "personal", "reflection", "opinion"] as const;
+export const PORTFOLIO_TAGS = [
+  "portfolio",
+  "commission",
+  "brand-story",
+  "editorial",
+  "case-study",
+  "featured-work",
+  "client-work",
+] as const;
+
+export type BlogTag = (typeof BLOG_TAGS)[number];
+export type PortfolioTag = (typeof PORTFOLIO_TAGS)[number];
+
+// Helper to determine if a post has blog or portfolio tags
+export const hasAnyTag = (post: BlogPost, tags: readonly string[]): boolean => {
+  if (!post.tags || !Array.isArray(post.tags)) {
+    return false;
+  }
+  return post.tags.some((tag) => tags.some((t) => t.toLowerCase() === tag.toLowerCase()));
+};
+
+export const isBlogPost = (post: BlogPost): boolean => hasAnyTag(post, BLOG_TAGS);
+export const isPortfolioPost = (post: BlogPost): boolean => hasAnyTag(post, PORTFOLIO_TAGS);
