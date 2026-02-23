@@ -39,6 +39,10 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns,
     dangerouslyAllowLocalIP: true,
+    // Prefer AVIF then WebP — significantly smaller than JPEG/PNG at same quality.
+    formats: ["image/avif", "image/webp"],
+    // Cache optimised images for 30 days on CDN / browser.
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
   turbopack: {
     root: __dirname,
