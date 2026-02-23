@@ -43,10 +43,22 @@ const isRateLimited = (ipAddress: string, limitPerHour: number) => {
   return false;
 };
 
-const syncToSubstack = async (email: string) => {
+interface SubstackSyncResult {
+  synced: boolean;
+  endpoint?: string;
+  method?: "json" | "form";
+  jsonStatus?: number;
+  formStatus?: number;
+  error?: string;
+}
+
+const syncToSubstack = async (email: string): Promise<SubstackSyncResult> => {
   const endpoint = env.server.SUBSTACK_SUBSCRIBE_ENDPOINT;
   if (!endpoint) {
-    return false;
+    return {
+      synced: false,
+      error: "SUBSTACK_SUBSCRIBE_ENDPOINT is not configured",
+    };
   }
 
   const endpointCandidates = (() => {
@@ -63,6 +75,11 @@ const syncToSubstack = async (email: string) => {
     }
   })();
 
+  let lastFailure: SubstackSyncResult = {
+    synced: false,
+    error: "No Substack endpoint attempts were made",
+  };
+
   for (const candidate of endpointCandidates) {
     try {
       const jsonResponse = await fetch(candidate, {
@@ -77,7 +94,12 @@ const syncToSubstack = async (email: string) => {
       });
 
       if (jsonResponse.ok) {
-        return true;
+        return {
+          synced: true,
+          endpoint: candidate,
+          method: "json",
+          jsonStatus: jsonResponse.status,
+        };
       }
 
       const formResponse = await fetch(candidate, {
@@ -92,8 +114,22 @@ const syncToSubstack = async (email: string) => {
       });
 
       if (formResponse.ok) {
-        return true;
+        return {
+          synced: true,
+          endpoint: candidate,
+          method: "form",
+          jsonStatus: jsonResponse.status,
+          formStatus: formResponse.status,
+        };
       }
+
+      lastFailure = {
+        synced: false,
+        endpoint: candidate,
+        jsonStatus: jsonResponse.status,
+        formStatus: formResponse.status,
+        error: "Substack returned non-2xx response",
+      };
 
       console.error("Substack subscribe failed", {
         endpoint: candidate,
@@ -101,6 +137,12 @@ const syncToSubstack = async (email: string) => {
         formStatus: formResponse.status,
       });
     } catch (error) {
+      lastFailure = {
+        synced: false,
+        endpoint: candidate,
+        error: error instanceof Error ? error.message : String(error),
+      };
+
       console.error("Substack subscribe request error", {
         endpoint: candidate,
         error: error instanceof Error ? error.message : String(error),
@@ -108,7 +150,7 @@ const syncToSubstack = async (email: string) => {
     }
   }
 
-  return false;
+  return lastFailure;
 };
 
 export async function POST(request: NextRequest) {
@@ -163,16 +205,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const substackSynced = await syncToSubstack(email.toLowerCase());
+    const substackSync = await syncToSubstack(email.toLowerCase());
 
-    if (substackSynced) {
+    if (substackSync.synced) {
       await supabase
         .from("newsletter_subscribers")
         .update({ substack_synced: true })
         .eq("email", email.toLowerCase());
     }
 
-    return NextResponse.json({ success: true, substackSynced });
+    return NextResponse.json({
+      success: true,
+      substackSynced: substackSync.synced,
+      substackDebug:
+        process.env.NODE_ENV === "development"
+          ? {
+              endpoint: substackSync.endpoint,
+              method: substackSync.method,
+              jsonStatus: substackSync.jsonStatus,
+              formStatus: substackSync.formStatus,
+              error: substackSync.error,
+            }
+          : undefined,
+    });
   } catch {
     return NextResponse.json(
       {

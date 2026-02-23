@@ -47,6 +47,7 @@ export const NewsletterForm = ({
       const payload = (await response.json().catch(() => null)) as {
         success?: boolean;
         error?: string;
+        substackSynced?: boolean;
       } | null;
 
       if (!response.ok || !payload?.success) {
@@ -54,7 +55,11 @@ export const NewsletterForm = ({
       }
 
       setSubmitState("success");
-      setMessage("You’re in. Please check your inbox for confirmation from Substack.");
+      if (payload?.substackSynced) {
+        setMessage("You’re in. Please check your inbox for confirmation from Substack.");
+      } else {
+        setMessage("Saved successfully. Substack sync is pending — please try again shortly.");
+      }
       setEmail("");
       onSuccess?.();
     } catch (error) {
