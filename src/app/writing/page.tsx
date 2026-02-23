@@ -50,7 +50,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
             <h1 className="mb-6 font-display text-display font-semibold leading-tight text-text-primary">
               Selected Writing
             </h1>
-            <p className="text-body-lg leading-relaxed text-text-muted">
+            <p className="text-body-lg leading-relaxed text-text-secondary">
               Essays, brand stories, and editorial features exploring culture, strategy, and the human
               side of work.
             </p>
@@ -90,7 +90,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
             </>
           ) : posts.length === 0 ? (
             <div className="mx-auto max-w-2xl py-12 text-center">
-              <p className="text-body-lg text-text-muted">
+              <p className="text-body-lg text-text-secondary">
                 {currentTag
                   ? `No writing found with the tag "${currentTag}". Try a different filter.`
                   : "New writing coming soon. Check back for essays, stories, and editorial features."}

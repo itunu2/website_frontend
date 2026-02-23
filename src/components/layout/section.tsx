@@ -11,9 +11,8 @@ export const Section = ({
   className,
   children,
 }: SectionProps) => (
-  <section 
-    id={id} 
-    aria-labelledby={id ? `${id}-title` : undefined} 
+  <section
+    id={id}
     className={cn("py-16 md:py-20 lg:py-24", className)}
   >
     {children}

@@ -44,7 +44,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
               Journal
             </p>
             <h1 className="mb-6 font-display text-display font-semibold leading-tight text-text-primary">Blog</h1>
-            <p className="text-body-lg leading-relaxed text-text-muted">
+            <p className="text-body-lg leading-relaxed text-text-secondary">
               Thoughts, essays, and stories about culture, creativity, and craft.
             </p>
           </div>
@@ -74,7 +74,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             </>
           ) : (
             <div className="mx-auto max-w-2xl text-center">
-              <p className="text-body-lg text-text-muted">
+              <p className="text-body-lg text-text-secondary">
                 {currentTag
                   ? `No posts found with the tag "${currentTag}". Try a different filter.`
                   : "New posts coming soon. Check back for thoughts, essays, and stories."}

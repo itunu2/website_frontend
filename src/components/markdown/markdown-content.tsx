@@ -37,13 +37,13 @@ const components = {
     <h4 {...props} className={cn(headingBase, "text-xl md:text-2xl mb-3 mt-6", className)} />
   ),
   p: ({ className, ...props }: ComponentPropsWithoutRef<"p">) => (
-    <p {...props} className={cn("mb-6 text-body leading-[1.8] text-text-muted", className)} />
+    <p {...props} className={cn("mb-6 text-body leading-[1.8] text-text-secondary", className)} />
   ),
   ul: ({ className, ...props }: ComponentPropsWithoutRef<"ul">) => (
-    <ul {...props} className={cn("my-6 ml-6 list-disc space-y-3 text-text-muted marker:text-accent-primary", className)} />
+    <ul {...props} className={cn("my-6 ml-6 list-disc space-y-3 text-text-secondary marker:text-accent-primary", className)} />
   ),
   ol: ({ className, ...props }: ComponentPropsWithoutRef<"ol">) => (
-    <ol {...props} className={cn("my-6 ml-6 list-decimal space-y-3 text-text-muted marker:text-accent-primary marker:font-semibold", className)} />
+    <ol {...props} className={cn("my-6 ml-6 list-decimal space-y-3 text-text-secondary marker:text-accent-primary marker:font-semibold", className)} />
   ),
   li: ({ className, ...props }: ComponentPropsWithoutRef<"li">) => (
     <li {...props} className={cn("leading-[1.8] pl-2", className)} />
@@ -52,7 +52,7 @@ const components = {
     <blockquote
       {...props}
       className={cn(
-        "my-10 border-l-4 border-accent-primary bg-bg-soft px-6 py-5 italic text-text-secondary rounded-r-lg",
+        "my-10 border-l-4 border-accent-primary bg-bg-elevated px-6 py-5 italic text-text-secondary rounded-r-lg",
         className,
       )}
     />
@@ -73,7 +73,7 @@ const components = {
       rel="noopener noreferrer"
       className={cn(
         "font-medium text-accent-primary underline decoration-accent-primary/30 underline-offset-2",
-        "transition-all duration-200 hover:decoration-accent-primary hover:text-accent-strong",
+        "transition-all duration-200 hover:decoration-accent-primary hover:text-accent-hover",
         className,
       )}
     />
@@ -118,9 +118,9 @@ export const MarkdownContent: React.FC<MarkdownContentProps> = ({ content, class
     <div
       className={cn(
         "prose prose-lg max-w-none text-text-primary prose-headings:font-display",
-        "prose-headings:text-text-primary prose-p:text-text-muted prose-li:text-text-muted",
+        "prose-headings:text-text-primary prose-p:text-text-secondary prose-li:text-text-secondary",
         "prose-strong:text-text-primary prose-code:text-text-primary",
-        "prose-a:text-brand-primary prose-a:underline hover:prose-a:no-underline",
+        "prose-a:text-accent-primary prose-a:underline hover:prose-a:no-underline",
         "prose-img:rounded-lg prose-img:shadow-md",
         className,
       )}

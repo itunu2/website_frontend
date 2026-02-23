@@ -80,7 +80,7 @@ export default function AboutPage() {
       {/* Story */}
       <Section className="bg-bg-page">
         <Container>
-          <div className="mx-auto max-w-3xl space-y-6 text-body-lg leading-relaxed text-text-muted">
+          <div className="mx-auto max-w-3xl space-y-6 text-body-lg leading-relaxed text-text-secondary">
             <p>
               I&rsquo;ve spent years writing across editorial and brand contexts—working with
               publications, startups, creative studios, and nonprofits to shape narratives that
@@ -112,7 +112,7 @@ export default function AboutPage() {
       </Section>
 
       {/* Values/Approach */}
-      <Section className="bg-bg-soft">
+      <Section className="bg-bg-elevated">
         <Container>
           <SectionHeading
             eyebrow="Philosophy"
@@ -127,7 +127,7 @@ export default function AboutPage() {
                 <h3 className="mb-3 font-display text-h3 font-semibold text-text-primary">
                   {value.title}
                 </h3>
-                <p className="text-body text-text-muted">{value.description}</p>
+                <p className="text-body text-text-secondary">{value.description}</p>
               </Card>
             ))}
           </div>
@@ -141,7 +141,7 @@ export default function AboutPage() {
             <h2 className="mb-4 font-display text-h2 font-semibold text-text-primary">
               Explore my work
             </h2>
-            <p className="mb-8 text-body-lg text-text-muted">
+            <p className="mb-8 text-body-lg text-text-secondary">
               Read selected essays and stories, or get in touch to discuss a project.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">

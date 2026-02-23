@@ -73,7 +73,7 @@ export const Pagination = ({ currentPage, totalPages, totalItems }: PaginationPr
     <div className="mt-12 border-t border-border-subtle pt-8">
       <div className="flex flex-col items-center gap-4">
         {/* Page info */}
-        <div className="text-body-sm text-text-muted">
+        <div className="text-body-sm text-text-tertiary">
           Page {currentPage} of {totalPages} · {totalItems} total
         </div>
 
@@ -94,7 +94,7 @@ export const Pagination = ({ currentPage, totalPages, totalItems }: PaginationPr
           {pageNumbers.map((page, index) => {
             if (typeof page === "string") {
               return (
-                <span key={`${page}-${index}`} className="px-2 text-text-muted">
+                <span key={`${page}-${index}`} className="px-2 text-text-tertiary">
                   ...
                 </span>
               );

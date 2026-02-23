@@ -37,7 +37,7 @@ const services = [
 
 export const WhatIWrite = () => {
   return (
-    <Section id="what-i-write" className="bg-bg-surface">
+    <Section id="what-i-write" className="bg-bg-page">
       <Container>
         {/* Centered Section Header */}
         <motion.div 
@@ -73,7 +73,7 @@ export const WhatIWrite = () => {
                 ease: [0.16, 1, 0.3, 1] 
               }}
             >
-              <div className="relative h-full p-10 rounded-2xl bg-bg-surface border border-border-default hover:border-accent-primary/50 transition-all duration-400 flex flex-col">
+              <div className="relative h-full p-10 rounded-2xl bg-bg-surface border border-border-default shadow-sm hover:border-accent-primary/50 hover:shadow-md transition-all duration-300 flex flex-col">
                 {/* Number indicator */}
                 <div className="mb-6">
                   <span className="text-[4rem] font-bold text-accent-primary/10 leading-none select-none">

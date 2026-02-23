@@ -89,11 +89,11 @@ export const Hero = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
               >
-                <Button href={callsToAction.secondary.href} size="lg">
-                  {callsToAction.secondary.label}
-                </Button>
-                <Button href={callsToAction.primary.href} size="lg" variant="secondary">
+                <Button href={callsToAction.primary.href} size="lg" variant="primary">
                   {callsToAction.primary.label}
+                </Button>
+                <Button href={callsToAction.secondary.href} size="lg" variant="secondary">
+                  {callsToAction.secondary.label}
                 </Button>
               </motion.div>
             </div>

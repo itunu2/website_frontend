@@ -21,19 +21,19 @@ export const Prose = forwardRef<HTMLDivElement, ProseProps>(({ className, childr
         // Paragraphs
         "prose-p:mb-4 prose-p:max-w-[65ch]",
         // Links
-        "prose-a:text-accent-primary prose-a:no-underline prose-a:transition-colors hover:prose-a:text-accent-strong",
+        "prose-a:text-accent-primary prose-a:no-underline prose-a:transition-colors hover:prose-a:text-accent-hover",
         // Lists
         "prose-ul:my-4 prose-ul:list-disc prose-ul:pl-6",
         "prose-ol:my-4 prose-ol:list-decimal prose-ol:pl-6",
         "prose-li:mb-2 prose-li:text-text-primary",
         // Blockquotes
-        "prose-blockquote:border-l-4 prose-blockquote:border-accent-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-text-muted prose-blockquote:my-6",
+        "prose-blockquote:border-l-4 prose-blockquote:border-accent-primary prose-blockquote:pl-6 prose-blockquote:italic prose-blockquote:text-text-secondary prose-blockquote:my-6",
         // Code
-        "prose-code:rounded prose-code:bg-bg-soft prose-code:px-1.5 prose-code:py-0.5 prose-code:text-body-sm prose-code:font-mono prose-code:text-accent-strong prose-code:before:content-none prose-code:after:content-none",
+        "prose-code:rounded prose-code:bg-bg-elevated prose-code:px-1.5 prose-code:py-0.5 prose-code:text-body-sm prose-code:font-mono prose-code:text-accent-primary prose-code:before:content-none prose-code:after:content-none",
         "prose-pre:rounded-xl prose-pre:bg-bg-elevated prose-pre:p-4 prose-pre:overflow-x-auto prose-pre:my-6",
         "prose-pre:border prose-pre:border-border-subtle",
         // Images
-        "prose-img:rounded-xl prose-img:my-8 prose-img:shadow-soft",
+        "prose-img:rounded-xl prose-img:my-8 prose-img:shadow-md",
         // Horizontal rules
         "prose-hr:border-border-subtle prose-hr:my-8",
         // Strong and emphasis

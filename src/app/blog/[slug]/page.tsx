@@ -72,7 +72,7 @@ export default async function PostPage({ params }: PostPageProps) {
         <Container>
           <article className="mx-auto max-w-3xl">
             {post.tags && post.tags.length > 0 && (
-              <p className="mb-4 text-body-sm uppercase tracking-wider text-text-soft">
+              <p className="mb-4 text-body-sm uppercase tracking-wider text-text-tertiary">
                 {post.tags[0]}
               </p>
             )}
@@ -82,10 +82,10 @@ export default async function PostPage({ params }: PostPageProps) {
             </h1>
 
             {post.description && (
-              <p className="mb-6 text-body-lg text-text-muted">{post.description}</p>
+              <p className="mb-6 text-body-lg text-text-secondary">{post.description}</p>
             )}
 
-            <div className="flex flex-wrap items-center gap-4 text-body-sm text-text-soft">
+            <div className="flex flex-wrap items-center gap-4 text-body-sm text-text-tertiary">
               <time dateTime={post.publishedDate}>{formatDate(post.publishedDate)}</time>
               <span>·</span>
               <span>{estimateReadingTime(post.content)}</span>
@@ -145,11 +145,11 @@ export default async function PostPage({ params }: PostPageProps) {
       )}
 
       {/* Footer Navigation */}
-      <Section className="bg-bg-soft">
+      <Section className="bg-bg-elevated">
         <Container>
           <div className="mx-auto max-w-3xl">
             <nav aria-label="Breadcrumb" className="mb-6">
-              <ol className="flex items-center gap-2 text-body-sm text-text-muted">
+              <ol className="flex items-center gap-2 text-body-sm text-text-secondary">
                 <li>
                   <Link href={siteRoutes.home} className="hover:text-accent-primary transition-colors">
                     Home
@@ -170,7 +170,7 @@ export default async function PostPage({ params }: PostPageProps) {
               <div className="flex items-center justify-between">
                 <Link
                   href={siteRoutes.blog}
-                  className="text-body text-accent-primary transition-colors hover:text-accent-strong"
+                  className="text-body text-accent-primary transition-colors hover:text-accent-hover"
                 >
                   ← Back to blog
                 </Link>

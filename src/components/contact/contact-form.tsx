@@ -118,12 +118,12 @@ export default function ContactForm() {
               <h2 className="mb-4 font-display text-h3 font-semibold text-text-primary">
                 Other ways to connect
               </h2>
-              <div className="space-y-3 text-body text-text-muted">
+              <div className="space-y-3 text-body text-text-secondary">
                 {socialLinks.map((link) => (
                   <div key={link.label}>
                     <a
                       href={link.href}
-                      className="text-accent-primary transition-colors hover:text-accent-strong"
+                      className="text-accent-primary transition-colors hover:text-accent-hover"
                       target={link.external ? "_blank" : undefined}
                       rel={link.external ? "noreferrer" : undefined}
                       aria-label={link.ariaLabel}

@@ -61,7 +61,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
 
             {/* Description */}
             {post.description && (
-              <p className="text-body-lg leading-[1.7] text-text-muted line-clamp-3">
+              <p className="text-body-lg leading-[1.7] text-text-secondary line-clamp-3">
                 {post.description}
               </p>
             )}
@@ -72,7 +72,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
                 <time dateTime={post.publishedDate}>
                   {formatDate(post.publishedDate)}
                 </time>
-                <span className="text-text-soft">·</span>
+                <span className="text-text-tertiary">·</span>
                 <span>{estimateReadingTime(post.content)}</span>
               </div>
 
@@ -116,9 +116,9 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
             />
           </div>
         ) : (
-          <div className="relative mb-5 flex aspect-video w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bg-soft">
+          <div className="relative mb-5 flex aspect-video w-full shrink-0 items-center justify-center overflow-hidden rounded-lg bg-bg-elevated">
             <svg
-              className="h-16 w-16 text-text-soft opacity-20"
+              className="h-16 w-16 text-text-tertiary opacity-20"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -151,7 +151,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
           </h3>
 
           {/* Description - always 3 lines */}
-          <p className="mb-4 min-h-18 text-body leading-normal text-text-muted line-clamp-3">
+          <p className="mb-4 min-h-[4.5rem] text-body leading-normal text-text-secondary line-clamp-3">
             {post.description || "Read more to discover the full story..."}
           </p>
 

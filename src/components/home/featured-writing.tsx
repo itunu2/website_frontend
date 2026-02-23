@@ -60,7 +60,7 @@ export const FeaturedWriting = ({ posts }: FeaturedWritingProps) => {
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: 0.4 }}
           >
-            <p className="text-body-lg leading-[1.8] text-text-muted">
+            <p className="text-body-lg leading-[1.8] text-text-secondary">
               Exploring the intersection of culture, creativity, and commerce through essays, brand narratives, and editorial investigations.
             </p>
             <div>

@@ -23,7 +23,7 @@ export const TableBody = ({ className, ...props }: ComponentPropsWithoutRef<"tbo
 );
 
 export const TableRow = ({ className, ...props }: ComponentPropsWithoutRef<"tr">) => (
-  <tr className={cn("transition-colors hover:bg-bg-soft", className)} {...props} />
+  <tr className={cn("transition-colors hover:bg-bg-elevated", className)} {...props} />
 );
 
 export const TableHeader = ({ className, ...props }: ComponentPropsWithoutRef<"th">) => (
@@ -40,7 +40,7 @@ export const TableHeader = ({ className, ...props }: ComponentPropsWithoutRef<"t
 export const TableCell = ({ className, ...props }: ComponentPropsWithoutRef<"td">) => (
   <td
     className={cn(
-      "px-6 py-4 text-text-muted",
+      "px-6 py-4 text-text-secondary",
       className
     )}
     {...props}

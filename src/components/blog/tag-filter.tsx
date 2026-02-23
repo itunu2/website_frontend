@@ -45,7 +45,7 @@ export const TagFilter = ({ tags, currentTag }: TagFilterProps) => {
   return (
     <div className="mb-12">
       <div className="flex flex-wrap gap-3 items-center">
-        <span className="text-body-sm text-text-soft font-semibold uppercase tracking-wider">Filter by:</span>
+        <span className="text-body-sm text-text-tertiary font-semibold uppercase tracking-wider">Filter by:</span>
         
         <Button
           variant={!currentTag ? "primary" : "secondary"}
@@ -70,12 +70,12 @@ export const TagFilter = ({ tags, currentTag }: TagFilterProps) => {
       </div>
 
       {currentTag && (
-        <div className="mt-4 text-body-sm text-text-muted animate-in fade-in slide-in-from-top-2 duration-300">
+        <div className="mt-4 text-body-sm text-text-secondary animate-in fade-in slide-in-from-top-2 duration-300">
           Showing posts tagged with <span className="font-semibold text-text-primary">{currentTag}</span>
           {" · "}
           <button
             onClick={handleClearFilter}
-            className="text-accent-primary hover:text-accent-strong underline underline-offset-2 decoration-accent-primary/30 hover:decoration-accent-primary font-medium transition-all duration-200"
+            className="text-accent-primary hover:text-accent-hover underline underline-offset-2 decoration-accent-primary/30 hover:decoration-accent-primary font-medium transition-all duration-200"
           >
             Clear filter
           </button>

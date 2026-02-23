@@ -28,7 +28,7 @@ export default function WritingError({
             <h1 className="mb-6 font-display text-display font-semibold text-text-primary">
               Something went wrong
             </h1>
-            <p className="mb-8 text-body-lg text-text-muted">
+            <p className="mb-8 text-body-lg text-text-secondary">
               We encountered an error while loading the writing portfolio. This could be a temporary issue.
             </p>
           </div>
@@ -46,7 +46,7 @@ export default function WritingError({
             </div>
 
             {error.digest && (
-              <p className="mt-6 text-body-sm text-text-soft">Error ID: {error.digest}</p>
+              <p className="mt-6 text-body-sm text-text-tertiary">Error ID: {error.digest}</p>
             )}
           </div>
         </Container>
