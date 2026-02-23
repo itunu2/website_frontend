@@ -5,5 +5,5 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default function OpenGraphImage() {
-  return new ImageResponse(<BrandImage width={size.width} height={size.height} includeText />, { ...size });
+  return new ImageResponse(<BrandImage width={size.width} height={size.height} />, { ...size });
 }
