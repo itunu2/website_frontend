@@ -4,27 +4,34 @@ import type { RemotePattern } from "next/dist/shared/lib/image-config";
 const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_BASE_URL ?? "http://127.0.0.1:1337";
 
 const remotePatterns: RemotePattern[] = (() => {
+  const patterns: RemotePattern[] = [];
+
+  // Allow images from the Strapi backend
   try {
     const { protocol, hostname, port } = new URL(strapiUrl);
     const normalizedProtocol = protocol.replace(":", "");
-    if (normalizedProtocol !== "http" && normalizedProtocol !== "https") {
-      return [];
-    }
-    return [
-      {
+    if (normalizedProtocol === "http" || normalizedProtocol === "https") {
+      patterns.push({
         protocol: normalizedProtocol,
         hostname,
         port: port || undefined,
         pathname: "/**",
-      },
-    ];
+      });
+    }
   } catch (error) {
-    // Log parsing issues only in development
     if (process.env.NODE_ENV === "development") {
       console.warn("Unable to parse NEXT_PUBLIC_STRAPI_BASE_URL for image optimization", error);
     }
-    return [];
   }
+
+  // Allow images from Supabase Storage
+  patterns.push({
+    protocol: "https",
+    hostname: "*.supabase.co",
+    pathname: "/storage/v1/object/public/**",
+  });
+
+  return patterns;
 })();
 
 const nextConfig: NextConfig = {
