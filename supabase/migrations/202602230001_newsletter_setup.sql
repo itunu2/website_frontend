@@ -7,6 +7,8 @@ create table if not exists public.newsletter_subscribers (
   status text not null default 'active' check (status in ('active', 'unsubscribed', 'bounced')),
   subscribed_at timestamptz not null default timezone('utc', now()),
   substack_synced boolean not null default false,
+  sync_batch_id uuid,
+  substack_sync_queued_at timestamptz,
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now()),
   constraint newsletter_subscribers_email_lowercase check (email = lower(email))
@@ -17,6 +19,12 @@ create index if not exists idx_newsletter_subscribers_source
 
 create index if not exists idx_newsletter_subscribers_subscribed_at
   on public.newsletter_subscribers (subscribed_at desc);
+
+create index if not exists idx_newsletter_subscribers_pending_sync
+  on public.newsletter_subscribers (substack_synced, sync_batch_id, subscribed_at desc);
+
+create index if not exists idx_newsletter_subscribers_sync_batch_id
+  on public.newsletter_subscribers (sync_batch_id);
 
 create or replace function public.set_newsletter_updated_at()
 returns trigger

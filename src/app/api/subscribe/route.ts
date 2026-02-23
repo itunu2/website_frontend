@@ -43,115 +43,7 @@ const isRateLimited = (ipAddress: string, limitPerHour: number) => {
   return false;
 };
 
-interface SubstackSyncResult {
-  synced: boolean;
-  endpoint?: string;
-  method?: "json" | "form";
-  jsonStatus?: number;
-  formStatus?: number;
-  error?: string;
-}
-
-const syncToSubstack = async (email: string): Promise<SubstackSyncResult> => {
-  const endpoint = env.server.SUBSTACK_SUBSCRIBE_ENDPOINT;
-  if (!endpoint) {
-    return {
-      synced: false,
-      error: "SUBSTACK_SUBSCRIBE_ENDPOINT is not configured",
-    };
-  }
-
-  const endpointCandidates = (() => {
-    try {
-      const parsed = new URL(endpoint);
-      const normalized = new URL(endpoint);
-      if (parsed.pathname === "/api/v1/free-signup") {
-        normalized.pathname = "/api/v1/free";
-      }
-
-      return Array.from(new Set([normalized.toString(), endpoint]));
-    } catch {
-      return [endpoint];
-    }
-  })();
-
-  let lastFailure: SubstackSyncResult = {
-    synced: false,
-    error: "No Substack endpoint attempts were made",
-  };
-
-  for (const candidate of endpointCandidates) {
-    try {
-      const jsonResponse = await fetch(candidate, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({ email }),
-        signal: AbortSignal.timeout(7000),
-        cache: "no-store",
-      });
-
-      if (jsonResponse.ok) {
-        return {
-          synced: true,
-          endpoint: candidate,
-          method: "json",
-          jsonStatus: jsonResponse.status,
-        };
-      }
-
-      const formResponse = await fetch(candidate, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          Accept: "*/*",
-        },
-        body: new URLSearchParams({ email }).toString(),
-        signal: AbortSignal.timeout(7000),
-        cache: "no-store",
-      });
-
-      if (formResponse.ok) {
-        return {
-          synced: true,
-          endpoint: candidate,
-          method: "form",
-          jsonStatus: jsonResponse.status,
-          formStatus: formResponse.status,
-        };
-      }
-
-      lastFailure = {
-        synced: false,
-        endpoint: candidate,
-        jsonStatus: jsonResponse.status,
-        formStatus: formResponse.status,
-        error: "Substack returned non-2xx response",
-      };
-
-      console.error("Substack subscribe failed", {
-        endpoint: candidate,
-        jsonStatus: jsonResponse.status,
-        formStatus: formResponse.status,
-      });
-    } catch (error) {
-      lastFailure = {
-        synced: false,
-        endpoint: candidate,
-        error: error instanceof Error ? error.message : String(error),
-      };
-
-      console.error("Substack subscribe request error", {
-        endpoint: candidate,
-        error: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  return lastFailure;
-};
+const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
 export async function POST(request: NextRequest) {
   const requestBody = await request.json().catch(() => null);
@@ -182,13 +74,13 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createServerSupabaseClient();
     const { email, source } = parsedBody.data;
+    const normalizedEmail = normalizeEmail(email);
 
     const { error: upsertError } = await supabase.from("newsletter_subscribers").upsert(
       {
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         source,
         status: "active",
-        subscribed_at: new Date().toISOString(),
       },
       {
         onConflict: "email",
@@ -205,28 +97,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const substackSync = await syncToSubstack(email.toLowerCase());
+    const { error: queuedUpdateError } = await supabase
+      .from("newsletter_subscribers")
+      .update({
+        substack_sync_queued_at: new Date().toISOString(),
+      })
+      .eq("email", normalizedEmail)
+      .eq("substack_synced", false)
+      .is("sync_batch_id", null);
 
-    if (substackSync.synced) {
-      await supabase
-        .from("newsletter_subscribers")
-        .update({ substack_synced: true })
-        .eq("email", email.toLowerCase());
+    if (queuedUpdateError) {
+      console.error("Failed to update newsletter queue timestamp", {
+        email: normalizedEmail,
+        error: queuedUpdateError.message,
+      });
     }
 
     return NextResponse.json({
       success: true,
-      substackSynced: substackSync.synced,
-      substackDebug:
-        process.env.NODE_ENV === "development"
-          ? {
-              endpoint: substackSync.endpoint,
-              method: substackSync.method,
-              jsonStatus: substackSync.jsonStatus,
-              formStatus: substackSync.formStatus,
-              error: substackSync.error,
-            }
-          : undefined,
+      message: "You're subscribed!",
+      substackSynced: false,
+      syncQueued: true,
     });
   } catch {
     return NextResponse.json(

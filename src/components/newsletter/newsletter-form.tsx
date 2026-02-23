@@ -4,7 +4,6 @@ import { useId, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { socialLinks } from "@/config/site";
 import { cn } from "@/lib/utils";
 import type { NewsletterSource } from "@/lib/newsletter/types";
 
@@ -23,18 +22,15 @@ export const NewsletterForm = ({
   onSuccess,
   buttonLabel = "Subscribe",
 }: NewsletterFormProps) => {
-  const substackLink = socialLinks.find((link) => link.label === "Substack")?.href ?? "https://substack.com/@queenit";
   const emailId = useId();
   const [email, setEmail] = useState("");
   const [submitState, setSubmitState] = useState<SubmitState>("idle");
   const [message, setMessage] = useState("");
-  const [showSubstackFallback, setShowSubstackFallback] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitState("loading");
     setMessage("");
-    setShowSubstackFallback(false);
 
     try {
       const response = await fetch("/api/subscribe", {
@@ -52,6 +48,7 @@ export const NewsletterForm = ({
         success?: boolean;
         error?: string;
         substackSynced?: boolean;
+        message?: string;
       } | null;
 
       if (!response.ok || !payload?.success) {
@@ -59,13 +56,8 @@ export const NewsletterForm = ({
       }
 
       setSubmitState("success");
-      if (payload?.substackSynced) {
-        setMessage("You’re in. Please check your inbox for confirmation from Substack.");
-        onSuccess?.();
-      } else {
-        setMessage("Saved successfully, but automatic Substack sync was blocked. Complete subscription on Substack.");
-        setShowSubstackFallback(true);
-      }
+      setMessage(payload?.message ?? "You’re subscribed. We’ll sync your email to the newsletter list shortly.");
+      onSuccess?.();
       setEmail("");
     } catch (error) {
       const nextMessage = error instanceof Error ? error.message : "Unable to subscribe right now.";
@@ -107,17 +99,6 @@ export const NewsletterForm = ({
       >
         {message || "Get essays and updates delivered to your inbox."}
       </p>
-
-      {showSubstackFallback && (
-        <a
-          href={substackLink}
-          target="_blank"
-          rel="noreferrer"
-          className="inline-flex text-body-sm font-medium text-accent-primary hover:text-accent-hover"
-        >
-          Complete subscription on Substack →
-        </a>
-      )}
     </form>
   );
 };

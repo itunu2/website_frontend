@@ -31,10 +31,8 @@ const serverSchema = z.object({
   STRAPI_BLOG_API_TOKEN: z.string().min(1).optional(),
   SUPABASE_URL: z.string().url({ message: "SUPABASE_URL must be a valid URL" }).optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
-  SUBSTACK_SUBSCRIBE_ENDPOINT: z
-    .string()
-    .url({ message: "SUBSTACK_SUBSCRIBE_ENDPOINT must be a valid URL" })
-    .optional(),
+  NEWSLETTER_ADMIN_TOKEN: z.string().min(1).optional(),
+  NEWSLETTER_WEBHOOK_SECRET: z.string().min(1).optional(),
   NEWSLETTER_RATE_LIMIT_PER_HOUR: z.coerce.number().int().min(1).max(100).default(3),
 });
 
@@ -74,7 +72,8 @@ export const env = {
         STRAPI_BLOG_API_TOKEN: process.env.STRAPI_BLOG_API_TOKEN,
         SUPABASE_URL: process.env.SUPABASE_URL,
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-        SUBSTACK_SUBSCRIBE_ENDPOINT: process.env.SUBSTACK_SUBSCRIBE_ENDPOINT,
+        NEWSLETTER_ADMIN_TOKEN: process.env.NEWSLETTER_ADMIN_TOKEN,
+        NEWSLETTER_WEBHOOK_SECRET: process.env.NEWSLETTER_WEBHOOK_SECRET,
         NEWSLETTER_RATE_LIMIT_PER_HOUR: process.env.NEWSLETTER_RATE_LIMIT_PER_HOUR,
       });
     }

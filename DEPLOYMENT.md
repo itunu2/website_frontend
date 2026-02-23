@@ -28,7 +28,8 @@ NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS=60
 STRAPI_BLOG_API_TOKEN=<your-api-token-from-backend>
 SUPABASE_URL=<your-supabase-project-url>
 SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
-SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free
+NEWSLETTER_ADMIN_TOKEN=<random-long-secret>
+NEWSLETTER_WEBHOOK_SECRET=<random-long-secret>
 NEWSLETTER_RATE_LIMIT_PER_HOUR=3
 ```
 
@@ -82,22 +83,41 @@ Important:
 
 ### 3) Configure Substack sync endpoint
 
-Set:
+Substack has no stable public API for server-side subscriber writes. The reliable path is:
 
-`SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free`
+1. Export pending subscribers as CSV from a protected admin route
+2. Import that CSV in Substack Publisher UI
+3. Mark that export batch as synced
 
-This is used by `/api/subscribe` as a best-effort sync after storing email in Supabase.
+### 4) Admin routes for CSV sync
 
-### 4) Deploy with env vars
+Use a Bearer token equal to `NEWSLETTER_ADMIN_TOKEN`.
+
+- `GET /api/admin/export-pending`
+   - Exports all rows where `substack_synced=false` and `sync_batch_id is null`
+   - Assigns a `sync_batch_id`
+   - Returns a CSV attachment with header `X-Substack-Sync-Batch-Id`
+
+- `POST /api/admin/mark-synced`
+   - Body: `{ "batchId": "<uuid>" }`
+   - Marks all rows in that batch as `substack_synced=true`
+
+Optional webhook endpoint for future delayed-job batching:
+
+- `POST /api/webhooks/subscriber-added`
+   - Header: `x-newsletter-webhook-secret: <NEWSLETTER_WEBHOOK_SECRET>`
+   - Can be used as Supabase DB webhook target
+
+### 5) Deploy with env vars
 
 On your hosting platform (Vercel/Netlify/etc), add all private vars above.
 Then redeploy and test:
 
 1. Open homepage and submit any newsletter form
 2. Verify row appears in Supabase `newsletter_subscribers`
-3. Verify `substack_synced` updates to `true` when Substack accepts the request
+3. Verify `substack_synced=false` until CSV import is completed
 
-### 5) Production checks
+### 6) Production checks
 
 - Confirm popup appears after engagement trigger (scroll/time/exit intent)
 - Confirm popup dismissal suppresses for 30 days
