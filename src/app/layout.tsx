@@ -26,6 +26,11 @@ export const metadata: Metadata = {
     template: `%s · ${siteIdentity.fullName}`,
   },
   description: siteIdentity.summary,
+  icons: {
+    icon: [{ url: "/icon", type: "image/png" }],
+    shortcut: [{ url: "/icon", type: "image/png" }],
+    apple: [{ url: "/apple-icon", type: "image/png" }],
+  },
   openGraph: {
     title: siteIdentity.fullName,
     description: siteIdentity.summary,
@@ -33,11 +38,20 @@ export const metadata: Metadata = {
     siteName: siteIdentity.fullName,
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: `${siteIdentity.fullName} — ${siteIdentity.role}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: siteIdentity.fullName,
     description: siteIdentity.summary,
+    images: ["/twitter-image"],
   },
 };
 
