@@ -49,22 +49,66 @@ const syncToSubstack = async (email: string) => {
     return false;
   }
 
-  try {
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
-      body: JSON.stringify({ email }),
-      signal: AbortSignal.timeout(5000),
-      cache: "no-store",
-    });
+  const endpointCandidates = (() => {
+    try {
+      const parsed = new URL(endpoint);
+      const normalized = new URL(endpoint);
+      if (parsed.pathname === "/api/v1/free-signup") {
+        normalized.pathname = "/api/v1/free";
+      }
 
-    return response.ok;
-  } catch {
-    return false;
+      return Array.from(new Set([normalized.toString(), endpoint]));
+    } catch {
+      return [endpoint];
+    }
+  })();
+
+  for (const candidate of endpointCandidates) {
+    try {
+      const jsonResponse = await fetch(candidate, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ email }),
+        signal: AbortSignal.timeout(7000),
+        cache: "no-store",
+      });
+
+      if (jsonResponse.ok) {
+        return true;
+      }
+
+      const formResponse = await fetch(candidate, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Accept: "*/*",
+        },
+        body: new URLSearchParams({ email }).toString(),
+        signal: AbortSignal.timeout(7000),
+        cache: "no-store",
+      });
+
+      if (formResponse.ok) {
+        return true;
+      }
+
+      console.error("Substack subscribe failed", {
+        endpoint: candidate,
+        jsonStatus: jsonResponse.status,
+        formStatus: formResponse.status,
+      });
+    } catch (error) {
+      console.error("Substack subscribe request error", {
+        endpoint: candidate,
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
   }
+
+  return false;
 };
 
 export async function POST(request: NextRequest) {

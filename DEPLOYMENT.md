@@ -28,7 +28,7 @@ NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS=60
 STRAPI_BLOG_API_TOKEN=<your-api-token-from-backend>
 SUPABASE_URL=<your-supabase-project-url>
 SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
-SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free-signup
+SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free
 NEWSLETTER_RATE_LIMIT_PER_HOUR=3
 ```
 
@@ -84,7 +84,7 @@ Important:
 
 Set:
 
-`SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free-signup`
+`SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free`
 
 This is used by `/api/subscribe` as a best-effort sync after storing email in Supabase.
 
