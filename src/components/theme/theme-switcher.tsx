@@ -145,7 +145,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
             aria-checked={isActive}
             aria-label={option.ariaLabel}
             onClick={() => setMode(option.value)}
-            className="relative h-11 w-11 touch-manipulation rounded-full transition-colors"
+            className="relative flex h-11 w-11 touch-manipulation items-center justify-center rounded-full transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -162,7 +162,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
               )}
             </AnimatePresence>
             <motion.span
-              className="relative"
+              className="relative flex items-center justify-center leading-none"
               animate={{
                 color: isActive ? "var(--accent-primary)" : "var(--text-tertiary)",
               }}

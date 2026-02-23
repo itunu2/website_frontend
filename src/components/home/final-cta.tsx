@@ -3,7 +3,6 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
-import { NewsletterForm } from "@/components/newsletter/newsletter-form";
 import { Button } from "@/components/ui/button";
 import { callsToAction } from "@/config/site";
 import { staggerContainer, staggerItem } from "@/lib/motion";
@@ -77,11 +76,6 @@ export const FinalCTA = () => {
               >
                 View my work
               </Button>
-
-              <div className="mt-3 rounded-xl border border-border-default bg-bg-surface p-4">
-                <p className="mb-2 text-body-sm font-medium text-text-primary">Prefer thoughtful updates by email?</p>
-                <NewsletterForm source="home-cta" buttonLabel="Subscribe" />
-              </div>
             </motion.div>
           </div>
         </motion.div>

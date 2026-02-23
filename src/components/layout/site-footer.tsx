@@ -9,12 +9,17 @@ export const SiteFooter = () => {
   return (
     <footer className="border-t border-border-default bg-bg-elevated">
       <Container className="py-12 md:py-16">
+        {/* Newsletter */}
         <div className="mb-8 rounded-xl border border-border-default bg-bg-surface p-5 md:p-6">
-          <div className="mb-4">
-            <p className="font-display text-h4 font-semibold text-text-primary">Stay in the loop</p>
-            <p className="text-body-sm text-text-secondary">Receive new essays and updates via email.</p>
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:gap-8">
+            <div className="md:flex-1">
+              <p className="font-display text-h4 font-semibold text-text-primary">Stay in the loop</p>
+              <p className="mt-0.5 text-body-sm text-text-secondary">Receive new essays and updates via email.</p>
+            </div>
+            <div className="md:w-80">
+              <NewsletterForm source="footer" buttonLabel="Subscribe" layout="inline" />
+            </div>
           </div>
-          <NewsletterForm source="footer" buttonLabel="Join" className="max-w-md" />
         </div>
 
         {/* Monogram + Brand */}
