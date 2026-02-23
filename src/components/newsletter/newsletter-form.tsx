@@ -91,7 +91,7 @@ export const NewsletterForm = ({
   }
 
   return (
-    <div className={cn("space-y-3", className)}>
+    <form onSubmit={handleSubmit} noValidate className={cn("space-y-3", className)}>
       <label htmlFor={emailId} className="sr-only">
         Email address
       </label>
@@ -141,6 +141,6 @@ export const NewsletterForm = ({
           ? message
           : "No spam, ever. Unsubscribe at any time."}
       </p>
-    </div>
+    </form>
   );
 };
