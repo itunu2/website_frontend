@@ -6,7 +6,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 const baseStyles =
-  "relative inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-accent disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden";
+  "relative inline-flex min-h-11 touch-manipulation items-center justify-center gap-2 overflow-hidden rounded-lg font-semibold transition-all duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-accent disabled:cursor-not-allowed disabled:opacity-50";
 
 const variantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
   primary: "bg-accent-primary text-white shadow-md hover:bg-accent-hover hover:shadow-xl active:shadow-sm",
@@ -16,7 +16,7 @@ const variantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
 };
 
 const sizeStyles: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "px-6 py-3 text-body-sm",
+  sm: "px-4 py-2.5 text-body-sm",
   md: "px-8 py-3.5 text-body",
   lg: "px-10 py-4 text-body-lg",
 };

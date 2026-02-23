@@ -12,7 +12,7 @@ export default function ContactPage() {
   return (
     <>
       {/* Hero */}
-      <Section className="bg-bg-elevated pt-24 pb-16">
+      <Section className="bg-bg-elevated pt-20 pb-14 md:pt-24 md:pb-16">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <h1 className="mb-6 font-display text-display font-semibold text-text-primary">

@@ -7,6 +7,7 @@ import { generateRequestId } from "@/lib/request-id";
 import { RequestIdProvider } from "@/components/providers/request-id-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { MotionRoot } from "@/components/motion/motion-root";
 import "./globals.css";
 
 const inter = Inter({
@@ -54,16 +55,18 @@ export default function RootLayout({
       <body className={`${inter.variable} bg-bg-page text-text-primary antialiased`}>
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-lg focus:bg-accent-primary focus:px-4 focus:py-2 focus:text-white focus:shadow-lg focus:outline-none"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:rounded-lg focus:bg-accent-primary focus:px-4 focus:py-2 focus:text-white focus:shadow-lg focus:outline-none"
         >
           Skip to main content
         </a>
         <RequestIdProvider value={requestId}>
-          <div className="flex min-h-screen flex-col">
-            <SiteHeader />
-            <main id="main-content" className="flex-1">{children}</main>
-            <SiteFooter />
-          </div>
+          <MotionRoot>
+            <div className="flex min-h-screen flex-col">
+              <SiteHeader />
+              <main id="main-content" className="flex-1">{children}</main>
+              <SiteFooter />
+            </div>
+          </MotionRoot>
         </RequestIdProvider>
       </body>
     </html>

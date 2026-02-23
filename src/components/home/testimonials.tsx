@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { TestimonialCard } from "@/components/ui/testimonial-card";
@@ -30,6 +30,8 @@ const testimonials = [
 ];
 
 export const Testimonials = () => {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Section id="testimonials" className="relative bg-bg-elevated overflow-hidden">
       {/* Subtle decorative gradient */}
@@ -39,10 +41,10 @@ export const Testimonials = () => {
         {/* Section Header - Left aligned */}
         <motion.div 
           className="max-w-2xl mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="inline-block text-caption font-semibold text-accent-primary mb-3">
             Kind Words
@@ -61,12 +63,12 @@ export const Testimonials = () => {
             <motion.div
               key={testimonial.id}
               className="flex h-full"
-              initial={{ opacity: 0, y: 40 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ 
-                duration: 0.6, 
-                delay: index * 0.15,
+                duration: shouldReduceMotion ? 0 : 0.6, 
+                delay: shouldReduceMotion ? 0 : index * 0.15,
                 ease: [0.16, 1, 0.3, 1] 
               }}
             >

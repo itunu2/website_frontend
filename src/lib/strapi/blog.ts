@@ -101,6 +101,15 @@ export interface BlogListResponse {
   meta: StrapiPaginationMeta;
 }
 
+const fallbackMeta = (page: number, pageSize: number): StrapiPaginationMeta => ({
+  pagination: {
+    page,
+    pageSize,
+    pageCount: 0,
+    total: 0,
+  },
+});
+
 export const getBlogPosts = async (params: BlogListParams = {}): Promise<BlogListResponse> => {
   const page = params.page ?? 1;
   const pageSize = params.pageSize ?? env.client.NEXT_PUBLIC_DEFAULT_PAGE_SIZE;
@@ -121,35 +130,48 @@ export const getBlogPosts = async (params: BlogListParams = {}): Promise<BlogLis
     query["filters[isFeatured][$eq]"] = params.featured;
   }
 
-  const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
-    query,
-    cache: "force-cache",
-    revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-  });
+  try {
+    const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
+      query,
+      cache: "force-cache",
+      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
+    });
 
-  return {
-    posts: response.data.map(transformBlogPost),
-    meta: response.meta,
-  };
+    return {
+      posts: response.data.map(transformBlogPost),
+      meta: response.meta,
+    };
+  } catch (error) {
+    console.error("getBlogPosts fallback activated", error);
+    return {
+      posts: [],
+      meta: fallbackMeta(page, pageSize),
+    };
+  }
 };
 
 export const getBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
   if (!slug) return null;
 
-  const response = await strapiFetch<StrapiSingleResponse<BlogPostAttributes>>(
-    `/api/blog-posts/slug/${encodeURIComponent(slug)}`,
-    {
-      cache: "force-cache",
-      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-      query: { populate: "featuredImage" },
-    },
-  );
+  try {
+    const response = await strapiFetch<StrapiSingleResponse<BlogPostAttributes>>(
+      `/api/blog-posts/slug/${encodeURIComponent(slug)}`,
+      {
+        cache: "force-cache",
+        revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
+        query: { populate: "featuredImage" },
+      },
+    );
 
-  if (!response.data) {
+    if (!response.data) {
+      return null;
+    }
+
+    return transformBlogPost(response.data);
+  } catch (error) {
+    console.error("getBlogPostBySlug fallback activated", { slug, error });
     return null;
   }
-
-  return transformBlogPost(response.data);
 };
 
 export const getAvailableTags = async (): Promise<string[]> => {
@@ -179,30 +201,36 @@ export const getPortfolioPosts = async (params: Omit<BlogListParams, "featured">
     query["filters[tags][$containsi]"] = params.tag;
   }
 
-  const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
-    query,
-    cache: "force-cache",
-    revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-  });
+  try {
+    const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
+      query,
+      cache: "force-cache",
+      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
+    });
 
-  // Transform and filter for portfolio posts
-  const allPosts = response.data.map(transformBlogPost);
-  
-  // If no specific tag filter, filter by portfolio tags on client side
-  const posts = params.tag
-    ? allPosts
-    : allPosts.filter((post) => {
-        if (isPortfolioPost(post) || post.isFeatured) {
-          return true;
-        }
-        const hasTags = Array.isArray(post.tags) && post.tags.length > 0;
-        return !hasTags;
-      });
+    const allPosts = response.data.map(transformBlogPost);
 
-  return {
-    posts,
-    meta: response.meta,
-  };
+    const posts = params.tag
+      ? allPosts
+      : allPosts.filter((post) => {
+          if (isPortfolioPost(post) || post.isFeatured) {
+            return true;
+          }
+          const hasTags = Array.isArray(post.tags) && post.tags.length > 0;
+          return !hasTags;
+        });
+
+    return {
+      posts,
+      meta: response.meta,
+    };
+  } catch (error) {
+    console.error("getPortfolioPosts fallback activated", error);
+    return {
+      posts: [],
+      meta: fallbackMeta(page, pageSize),
+    };
+  }
 };
 
 /**
@@ -226,31 +254,38 @@ export const getBlogPostsOnly = async (params: Omit<BlogListParams, "featured"> 
     query["filters[tags][$containsi]"] = params.tag;
   }
 
-  const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
-    query,
-    cache: "force-cache",
-    revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-  });
+  try {
+    const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
+      query,
+      cache: "force-cache",
+      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
+    });
 
-  const allPosts = response.data.map(transformBlogPost);
-  
-  // If no specific tag filter, filter by blog tags on client side
-  const posts = params.tag
-    ? allPosts
-    : allPosts.filter((post) => {
-        if (isBlogPost(post)) {
+    const allPosts = response.data.map(transformBlogPost);
+
+    const posts = params.tag
+      ? allPosts
+      : allPosts.filter((post) => {
+          if (isBlogPost(post)) {
+            return true;
+          }
+          if (isPortfolioPost(post)) {
+            return false;
+          }
           return true;
-        }
-        if (isPortfolioPost(post)) {
-          return false;
-        }
-        return true;
-      });
+        });
 
-  return {
-    posts,
-    meta: response.meta,
-  };
+    return {
+      posts,
+      meta: response.meta,
+    };
+  } catch (error) {
+    console.error("getBlogPostsOnly fallback activated", error);
+    return {
+      posts: [],
+      meta: fallbackMeta(page, pageSize),
+    };
+  }
 };
 
 /**
@@ -261,20 +296,21 @@ export const getRelatedPosts = async (currentPost: BlogPost, limit = 3): Promise
     return [];
   }
 
-  // Fetch posts that share at least one tag
-  const { posts } = await getBlogPosts({ pageSize: 20 });
-  
-  return posts
-    .filter((post) => {
-      // Exclude the current post
-      if (post.id === currentPost.id) return false;
-      
-      // Check for shared tags (case-insensitive)
-      if (!post.tags || !Array.isArray(post.tags)) return false;
-      
-      return post.tags.some((tag) =>
-        currentPost.tags.some((currentTag) => currentTag.toLowerCase() === tag.toLowerCase())
-      );
-    })
-    .slice(0, limit);
+  try {
+    const { posts } = await getBlogPosts({ pageSize: 20 });
+
+    return posts
+      .filter((post) => {
+        if (post.id === currentPost.id) return false;
+        if (!post.tags || !Array.isArray(post.tags)) return false;
+
+        return post.tags.some((tag) =>
+          currentPost.tags.some((currentTag) => currentTag.toLowerCase() === tag.toLowerCase())
+        );
+      })
+      .slice(0, limit);
+  } catch (error) {
+    console.error("getRelatedPosts fallback activated", error);
+    return [];
+  }
 };

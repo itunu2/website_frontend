@@ -16,10 +16,14 @@ interface PostPageProps {
 }
 
 export async function generateStaticParams() {
-  const { posts } = await getBlogPosts({ pageSize: 100 });
-  return posts.map((post) => ({
-    slug: post.slug,
-  }));
+  try {
+    const { posts } = await getBlogPosts({ pageSize: 100 });
+    return posts.map((post) => ({
+      slug: post.slug,
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
@@ -68,7 +72,7 @@ export default async function PostPage({ params }: PostPageProps) {
   return (
     <>
       {/* Header */}
-      <Section className="bg-bg-elevated pt-24 pb-12">
+      <Section className="bg-bg-elevated pt-20 pb-10 md:pt-24 md:pb-12">
         <Container>
           <article className="mx-auto max-w-3xl">
             {post.tags && post.tags.length > 0 && (
@@ -113,6 +117,7 @@ export default async function PostPage({ params }: PostPageProps) {
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1024px"
               />
             </div>
           </Container>

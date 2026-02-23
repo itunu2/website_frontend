@@ -44,29 +44,34 @@ export const TagFilter = ({ tags, currentTag }: TagFilterProps) => {
 
   return (
     <div className="mb-12">
-      <div className="flex flex-wrap gap-3 items-center">
-        <span className="text-body-sm text-text-tertiary font-semibold uppercase tracking-wider">Filter by:</span>
-        
-        <Button
-          variant={!currentTag ? "primary" : "secondary"}
-          size="sm"
-          onClick={handleClearFilter}
-          className="rounded-full transition-transform duration-200 hover:scale-105"
-        >
-          All
-        </Button>
+      <div className="flex flex-col gap-3 sm:gap-4">
+        <span className="text-body-sm font-semibold uppercase tracking-wider text-text-tertiary">Filter by:</span>
 
-        {tags.map((tag) => (
+        <div
+          className="-mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 sm:pb-0"
+          aria-label="Post tags"
+        >
           <Button
-            key={tag}
-            variant={currentTag === tag ? "primary" : "secondary"}
+            variant={!currentTag ? "primary" : "secondary"}
             size="sm"
-            onClick={() => handleTagClick(tag)}
-            className="rounded-full capitalize transition-transform duration-200 hover:scale-105"
+            onClick={handleClearFilter}
+            className="shrink-0 snap-start rounded-full"
           >
-            {tag}
+            All
           </Button>
-        ))}
+
+          {tags.map((tag) => (
+            <Button
+              key={tag}
+              variant={currentTag === tag ? "primary" : "secondary"}
+              size="sm"
+              onClick={() => handleTagClick(tag)}
+              className="shrink-0 snap-start rounded-full capitalize"
+            >
+              {tag}
+            </Button>
+          ))}
+        </div>
       </div>
 
       {currentTag && (

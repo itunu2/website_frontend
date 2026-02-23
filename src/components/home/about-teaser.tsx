@@ -1,14 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { Button } from "@/components/ui/button";
 import { siteRoutes } from "@/config/site";
-import { fadeInUp, staggerContainer, staggerItem } from "@/lib/motion";
 
 export const AboutTeaser = () => {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Section id="about-teaser" className="bg-bg-elevated">
       <Container size="lg">
@@ -16,10 +17,10 @@ export const AboutTeaser = () => {
           {/* Left: Image + Heading */}
           <motion.div
             className="lg:col-span-5 space-y-8"
-            initial={{ opacity: 0, x: -30 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
           >
             {/* Profile Picture */}
             <div className="relative w-64 h-80 mx-auto lg:mx-0 rounded-2xl overflow-hidden shadow-xl ring-1 ring-border-default bg-bg-subtle">
@@ -29,6 +30,7 @@ export const AboutTeaser = () => {
                 width={256}
                 height={320}
                 className="w-full h-full object-cover object-center"
+                sizes="(max-width: 1024px) 256px, 320px"
                 quality={90}
               />
             </div>
@@ -49,10 +51,10 @@ export const AboutTeaser = () => {
           {/* Right: Content */}
           <motion.div
             className="lg:col-span-7"
-            initial={{ opacity: 0, x: 30 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: shouldReduceMotion ? 0 : 0.6, delay: shouldReduceMotion ? 0 : 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
             <div className="space-y-6 text-body-lg leading-relaxed text-text-secondary">
               <p>

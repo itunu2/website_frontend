@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
-import { motion, useScroll, useTransform, useMotionTemplate, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionTemplate, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/layout/container";
 import { Button } from "@/components/ui/button";
 import { callsToAction, navigation, siteIdentity } from "@/config/site";
@@ -12,6 +12,7 @@ import { ThemeSwitcher } from "@/components/theme/theme-switcher";
 export const SiteHeader = () => {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const shouldReduceMotion = useReducedMotion();
   const { scrollY } = useScroll();
 
   const bgOpacity = useTransform(scrollY, [0, 80], [0, 0.97]);
@@ -26,19 +27,59 @@ export const SiteHeader = () => {
     setMobileMenuOpen(false);
   }, [pathname]);
 
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [mobileMenuOpen]);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleEscape);
+    return () => {
+      window.removeEventListener("keydown", handleEscape);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
   return (
     <motion.header
       className="sticky top-0 z-50 backdrop-blur-md"
       style={{ backgroundColor, borderBottom: "1px solid", borderBottomColor }}
     >
-      <Container className="flex h-20 items-center justify-between">
+      <Container className="flex h-16 items-center justify-between sm:h-20">
         {/* Logo/Brand */}
         <Link
           href="/"
           aria-label={`${siteIdentity.fullName} home`}
-          className="transition-opacity duration-300 hover:opacity-80"
+          className="max-w-[calc(100vw-9rem)] transition-opacity duration-300 hover:opacity-80 sm:max-w-none"
         >
-          <span className="font-display text-h4 font-semibold text-text-primary tracking-tight">
+          <span className="block truncate font-display text-body font-semibold text-text-primary tracking-tight sm:text-h4">
             {siteIdentity.fullName}
           </span>
         </Link>
@@ -64,7 +105,7 @@ export const SiteHeader = () => {
                   <motion.span
                     layoutId="activeNav"
                     className="absolute inset-0 bg-accent-subtle rounded-lg -z-10"
-                    transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                    transition={shouldReduceMotion ? { duration: 0 } : { type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
               </Link>
@@ -86,20 +127,21 @@ export const SiteHeader = () => {
 
           {/* Mobile hamburger */}
           <button
-            className="flex h-10 w-10 items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text-primary md:hidden"
+            className="flex h-11 w-11 touch-manipulation items-center justify-center rounded-lg text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text-primary md:hidden"
             onClick={() => setMobileMenuOpen((prev) => !prev)}
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav"
+            aria-haspopup="menu"
           >
             <AnimatePresence initial={false} mode="wait">
               {mobileMenuOpen ? (
                 <motion.svg
                   key="close"
-                  initial={{ opacity: 0, rotate: -45 }}
+                  initial={shouldReduceMotion ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: -45 }}
                   animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: 45 }}
-                  transition={{ duration: 0.15 }}
+                  exit={shouldReduceMotion ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: 45 }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.15 }}
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
@@ -115,10 +157,10 @@ export const SiteHeader = () => {
               ) : (
                 <motion.svg
                   key="open"
-                  initial={{ opacity: 0, rotate: 45 }}
+                  initial={shouldReduceMotion ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: 45 }}
                   animate={{ opacity: 1, rotate: 0 }}
-                  exit={{ opacity: 0, rotate: -45 }}
-                  transition={{ duration: 0.15 }}
+                  exit={shouldReduceMotion ? { opacity: 1, rotate: 0 } : { opacity: 0, rotate: -45 }}
+                  transition={{ duration: shouldReduceMotion ? 0 : 0.15 }}
                   width="20"
                   height="20"
                   viewBox="0 0 24 24"
@@ -148,11 +190,11 @@ export const SiteHeader = () => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-t border-border-default md:hidden"
+            transition={{ duration: shouldReduceMotion ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
+            className="max-h-[calc(100svh-4rem)] overflow-y-auto border-t border-border-default md:hidden sm:max-h-[calc(100svh-5rem)]"
             style={{ backgroundColor }}
           >
-            <Container className="flex flex-col gap-1 py-4">
+            <Container className="flex flex-col gap-1 py-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
               {navigation.primary.slice(1).map((item) => {
                 const isActive = pathname === item.href;
                 return (

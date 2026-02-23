@@ -73,12 +73,13 @@ export const Pagination = ({ currentPage, totalPages, totalItems }: PaginationPr
     <div className="mt-12 border-t border-border-subtle pt-8">
       <div className="flex flex-col items-center gap-4">
         {/* Page info */}
-        <div className="text-body-sm text-text-tertiary">
+        <div className="text-body-sm text-center text-text-tertiary">
           Page {currentPage} of {totalPages} · {totalItems} total
         </div>
 
         {/* Page buttons */}
-        <div className="flex items-center gap-2">
+        <div className="-mx-4 w-full overflow-x-auto px-4">
+          <div className="mx-auto flex w-max items-center gap-2 whitespace-nowrap">
           {/* Previous button */}
           <Button
             variant="secondary"
@@ -86,8 +87,10 @@ export const Pagination = ({ currentPage, totalPages, totalItems }: PaginationPr
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
             className="mr-2"
+            aria-label="Previous page"
           >
-            Previous
+            <span className="sm:hidden">Prev</span>
+            <span className="hidden sm:inline">Previous</span>
           </Button>
 
           {/* Page numbers */}
@@ -106,7 +109,8 @@ export const Pagination = ({ currentPage, totalPages, totalItems }: PaginationPr
                 variant={currentPage === page ? "primary" : "secondary"}
                 size="sm"
                 onClick={() => handlePageChange(page)}
-                className="min-w-10"
+                className="min-w-11 px-3"
+                aria-label={`Go to page ${page}`}
               >
                 {page}
               </Button>
@@ -120,9 +124,12 @@ export const Pagination = ({ currentPage, totalPages, totalItems }: PaginationPr
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
             className="ml-2"
+            aria-label="Next page"
           >
-            Next
+            <span className="sm:hidden">Next</span>
+            <span className="hidden sm:inline">Next</span>
           </Button>
+          </div>
         </div>
       </div>
     </div>

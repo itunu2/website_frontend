@@ -145,7 +145,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
             aria-checked={isActive}
             aria-label={option.ariaLabel}
             onClick={() => setMode(option.value)}
-            className="relative rounded-full p-2 transition-colors"
+            className="relative h-11 w-11 touch-manipulation rounded-full transition-colors"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >

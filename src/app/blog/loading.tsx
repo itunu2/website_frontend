@@ -6,7 +6,7 @@ export default function BlogLoading() {
   return (
     <>
       {/* Hero Skeleton */}
-      <Section className="bg-bg-elevated pt-24 pb-16">
+      <Section className="bg-bg-elevated pt-20 pb-14 md:pt-24 md:pb-16">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
             <Skeleton className="mx-auto mb-3 h-4 w-24" />

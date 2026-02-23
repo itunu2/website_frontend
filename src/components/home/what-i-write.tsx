@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 
@@ -36,16 +36,18 @@ const services = [
 ];
 
 export const WhatIWrite = () => {
+  const shouldReduceMotion = useReducedMotion();
+
   return (
     <Section id="what-i-write" className="bg-bg-page">
       <Container>
         {/* Centered Section Header */}
         <motion.div 
           className="text-center max-w-3xl mx-auto mb-16"
-          initial={{ opacity: 0, y: 30 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: shouldReduceMotion ? 0 : 0.6, ease: [0.16, 1, 0.3, 1] }}
         >
           <span className="inline-block text-caption font-semibold text-sage-primary mb-3">
             Services
@@ -64,12 +66,12 @@ export const WhatIWrite = () => {
             <motion.div
               key={service.id}
               className="group h-full"
-              initial={{ opacity: 0, y: 30 }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
               transition={{ 
-                duration: 0.5, 
-                delay: index * 0.08,
+                duration: shouldReduceMotion ? 0 : 0.5, 
+                delay: shouldReduceMotion ? 0 : index * 0.08,
                 ease: [0.16, 1, 0.3, 1] 
               }}
             >

@@ -41,7 +41,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
   return (
     <>
       {/* Hero */}
-      <Section className="bg-bg-elevated pt-32 pb-20">
+      <Section className="bg-bg-elevated pt-20 pb-16 md:pt-32 md:pb-20">
         <Container>
           <div className="mx-auto max-w-4xl text-center">
             <p className="mb-4 text-body-sm font-semibold uppercase tracking-[0.4em] text-accent-primary">

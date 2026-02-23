@@ -55,7 +55,7 @@ export const callsToAction = {
 export const socialLinks: SocialLink[] = [
   {
     label: "Email",
-    href: "mailto:hello@itunus.com",
+    href: "mailto:adegbayiitunuoluwa@gmail.com",
     ariaLabel: "Email Itunu",
   },
   {
@@ -72,7 +72,7 @@ export const socialLinks: SocialLink[] = [
   },
   {
     label: "Substack",
-    href: "https://substack.com/@itunus",
+    href: "https://substack.com/@queenit",
     external: true,
     ariaLabel: "Read Itunu's Substack",
   },

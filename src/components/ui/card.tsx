@@ -6,10 +6,10 @@ import { motion, type HTMLMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 const variantStyles = {
-  default: "bg-bg-surface border border-border-default shadow-sm hover:shadow-md backdrop-blur-sm",
-  elevated: "bg-bg-surface shadow-md hover:shadow-xl backdrop-blur-md",
+  default: "bg-bg-surface border border-border-default shadow-sm hover:shadow-md",
+  elevated: "bg-bg-surface shadow-md hover:shadow-xl",
   flat: "bg-bg-elevated hover:bg-bg-surface transition-colors",
-  interactive: "bg-bg-surface border border-border-default shadow-md hover:shadow-xl hover:border-accent-primary cursor-pointer backdrop-blur-sm group",
+  interactive: "bg-bg-surface border border-border-default shadow-md hover:shadow-xl hover:border-accent-primary cursor-pointer group",
   glass: "bg-bg-surface/80 backdrop-blur-xl border border-border-subtle shadow-lg hover:shadow-xl",
 } as const;
 

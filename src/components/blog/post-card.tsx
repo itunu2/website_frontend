@@ -41,6 +41,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
                 fill
                 className="object-cover transition-transform duration-700 ease-out will-change-transform group-hover:scale-105"
                 priority
+                sizes="(max-width: 767px) 100vw, (max-width: 1023px) 60vw, 66vw"
               />
             </div>
           )}
@@ -151,7 +152,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
           </h3>
 
           {/* Description - always 3 lines */}
-          <p className="mb-4 min-h-[4.5rem] text-body leading-normal text-text-secondary line-clamp-3">
+          <p className="mb-4 min-h-18 text-body leading-normal text-text-secondary line-clamp-3">
             {post.description || "Read more to discover the full story..."}
           </p>
 

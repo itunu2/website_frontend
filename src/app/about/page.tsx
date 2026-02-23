@@ -44,7 +44,7 @@ export default function AboutPage() {
   return (
     <>
       {/* Hero */}
-      <Section className="bg-bg-elevated pt-24 pb-16">
+      <Section className="bg-bg-elevated pt-20 pb-14 md:pt-24 md:pb-16">
         <Container>
           <div className="mx-auto max-w-4xl">
             <div className="flex flex-col md:flex-row items-center gap-12">
@@ -58,7 +58,8 @@ export default function AboutPage() {
                     height={280}
                     className="w-full h-full object-cover object-center"
                     priority
-                    quality={95}
+                    sizes="(max-width: 768px) 192px, 224px"
+                    quality={88}
                   />
                 </div>
               </div>
