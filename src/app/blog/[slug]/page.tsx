@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { PostCard } from "@/components/blog/post-card";
 import { getBlogPostBySlug, getBlogPosts, getRelatedPosts } from "@/lib/strapi/blog";
 import { MarkdownContent } from "@/components/markdown/markdown-content";
+import { BlogNewsletterCta } from "@/components/newsletter/blog-newsletter-cta";
 import { siteRoutes } from "@/config/site";
 import type { Metadata } from "next";
 
@@ -129,6 +130,9 @@ export default async function PostPage({ params }: PostPageProps) {
         <Container>
           <div className="mx-auto max-w-3xl">
             <MarkdownContent content={post.content} />
+            <div className="mt-12">
+              <BlogNewsletterCta />
+            </div>
           </div>
         </Container>
       </Section>

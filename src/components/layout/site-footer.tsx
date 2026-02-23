@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Container } from "@/components/layout/container";
+import { NewsletterForm } from "@/components/newsletter/newsletter-form";
 import { footerCopy, navigation, siteIdentity, socialLinks } from "@/config/site";
 
 const currentYear = new Date().getFullYear();
@@ -8,6 +9,14 @@ export const SiteFooter = () => {
   return (
     <footer className="border-t border-border-default bg-bg-elevated">
       <Container className="py-12 md:py-16">
+        <div className="mb-8 rounded-xl border border-border-default bg-bg-surface p-5 md:p-6">
+          <div className="mb-4">
+            <p className="font-display text-h4 font-semibold text-text-primary">Stay in the loop</p>
+            <p className="text-body-sm text-text-secondary">Receive new essays and updates via email.</p>
+          </div>
+          <NewsletterForm source="footer" buttonLabel="Join" className="max-w-md" />
+        </div>
+
         {/* Monogram + Brand */}
         <div className="mb-8 flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-border-default bg-bg-surface shadow-sm">

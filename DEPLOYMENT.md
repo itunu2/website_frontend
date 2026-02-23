@@ -26,7 +26,87 @@ NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS=60
 
 ```env
 STRAPI_BLOG_API_TOKEN=<your-api-token-from-backend>
+SUPABASE_URL=<your-supabase-project-url>
+SUPABASE_SERVICE_ROLE_KEY=<your-supabase-service-role-key>
+SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free-signup
+NEWSLETTER_RATE_LIMIT_PER_HOUR=3
 ```
+
+## Newsletter Setup (Supabase + Substack)
+
+### 1) Create Supabase table and policies
+
+Run the SQL in:
+
+`scripts/newsletter_supabase.sql`
+
+Automatic option (recommended):
+
+```bash
+npm run newsletter:apply-sql
+```
+
+This command copies `scripts/newsletter_supabase.sql` into a migration file and applies it to your remote Supabase database.
+
+CI automation option (best for teams):
+
+- A workflow exists at `.github/workflows/supabase-migrations.yml`
+- It automatically runs on pushes to `main` when files in `supabase/migrations/**` change
+- It can also be run manually via GitHub Actions (`workflow_dispatch`)
+
+Required once in GitHub repository settings:
+
+- Add secret `DATABASE_URL`
+
+How to run it:
+
+1. Set `DATABASE_URL` in your environment
+2. Run `npm run newsletter:apply-sql`
+3. Confirm `newsletter_subscribers` table exists
+
+Manual fallback:
+
+1. Open Supabase Dashboard → SQL Editor
+2. Paste the contents of `scripts/newsletter_supabase.sql`
+3. Execute and confirm `newsletter_subscribers` table exists
+
+### 2) Get required Supabase credentials
+
+1. Open Supabase Dashboard → Project Settings → API
+2. Copy **Project URL** → use as `SUPABASE_URL`
+3. Copy **service_role** key → use as `SUPABASE_SERVICE_ROLE_KEY`
+4. Open Supabase Dashboard → Connect → Connection string (URI) → use as `DATABASE_URL`
+
+Important:
+- `SUPABASE_SERVICE_ROLE_KEY` is server-only. Never expose it in `NEXT_PUBLIC_*` vars.
+
+### 3) Configure Substack sync endpoint
+
+Set:
+
+`SUBSTACK_SUBSCRIBE_ENDPOINT=https://queenit.substack.com/api/v1/free-signup`
+
+This is used by `/api/subscribe` as a best-effort sync after storing email in Supabase.
+
+### 4) Deploy with env vars
+
+On your hosting platform (Vercel/Netlify/etc), add all private vars above.
+Then redeploy and test:
+
+1. Open homepage and submit any newsletter form
+2. Verify row appears in Supabase `newsletter_subscribers`
+3. Verify `substack_synced` updates to `true` when Substack accepts the request
+
+### 5) Production checks
+
+- Confirm popup appears after engagement trigger (scroll/time/exit intent)
+- Confirm popup dismissal suppresses for 30 days
+- Confirm blog/footer/home forms all submit successfully
+
+### Migration cadence
+
+- Run migrations when schema changes (not every deployment).
+- If there are no new migration files, deploys can skip DB migration safely.
 
 ## Hosting Platforms
 

@@ -7,6 +7,7 @@ import { generateRequestId } from "@/lib/request-id";
 import { RequestIdProvider } from "@/components/providers/request-id-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
+import { NewsletterPopup } from "@/components/newsletter/newsletter-popup";
 import { MotionRoot } from "@/components/motion/motion-root";
 import "./globals.css";
 
@@ -66,6 +67,7 @@ export default function RootLayout({
               <main id="main-content" className="flex-1">{children}</main>
               <SiteFooter />
             </div>
+            <NewsletterPopup />
           </MotionRoot>
         </RequestIdProvider>
       </body>
