@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
-import { headers } from "next/headers";
 import { Inter } from "next/font/google";
 import { siteIdentity } from "@/config/site";
 import { env } from "@/config/env";
 import { ThemeScript } from "@/components/theme/theme-script";
-import { generateRequestId, getRequestIdHeaderName } from "@/lib/request-id";
+import { generateRequestId } from "@/lib/request-id";
 import { RequestIdProvider } from "@/components/providers/request-id-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -40,15 +39,12 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const headerList = await headers();
-  const requestHeaderName = getRequestIdHeaderName();
-  const existingRequestId = headerList.get(requestHeaderName);
-  const requestId = existingRequestId ?? generateRequestId();
+  const requestId = generateRequestId();
 
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
