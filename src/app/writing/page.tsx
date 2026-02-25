@@ -47,7 +47,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
             <p className="mb-4 text-body-sm font-semibold uppercase tracking-[0.4em] text-accent-primary">
               Portfolio
             </p>
-            <h1 className="mb-6 font-display text-display font-semibold leading-tight text-text-primary">
+            <h1 className="mb-6 font-display text-display leading-tight text-text-primary">
               Selected Writing
             </h1>
             <p className="text-body-lg leading-relaxed text-text-secondary">

@@ -153,8 +153,8 @@ export const NewsletterPopup = () => {
               </svg>
             </button>
 
-            <h2 className="mb-1.5 pr-8 font-display text-h3 font-semibold text-text-primary">
-              Stay in the loop
+            <h2 className="mb-1.5 pr-8 font-display text-h3 text-text-primary">
+              Join my newsletter
             </h2>
             <p className="mb-5 text-body-sm text-text-secondary">
               New essays, stories, and ideas straight to your inbox.

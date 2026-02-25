@@ -13,7 +13,7 @@ export const Prose = forwardRef<HTMLDivElement, ProseProps>(({ className, childr
         // Base typography
         "text-body text-text-primary leading-relaxed",
         // Headings
-        "prose-headings:font-display prose-headings:font-semibold prose-headings:text-text-primary",
+        "prose-headings:font-display prose-headings:text-text-primary",
         "prose-h1:text-h1 prose-h1:mb-6 prose-h1:mt-8",
         "prose-h2:text-h2 prose-h2:mb-4 prose-h2:mt-8",
         "prose-h3:text-h3 prose-h3:mb-3 prose-h3:mt-6",

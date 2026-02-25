@@ -29,7 +29,7 @@ export const SectionHeading = ({
       {eyebrow && (
         <p className="mb-3 text-caption font-medium uppercase tracking-wider text-accent-primary">{eyebrow}</p>
       )}
-      <h2 className="mb-4 font-display text-h2 font-semibold text-text-primary">{title}</h2>
+      <h2 className="mb-4 font-display text-h2 text-text-primary">{title}</h2>
       {description && <p className="text-body-lg leading-relaxed text-text-secondary">{description}</p>}
     </div>
   );

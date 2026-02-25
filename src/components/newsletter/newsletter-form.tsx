@@ -15,6 +15,8 @@ interface NewsletterFormProps {
   buttonLabel?: string;
   /** "stacked" stacks input above button (default); "inline" places them side-by-side on sm+ */
   layout?: "inline" | "stacked";
+  /** Use dark-friendly styling (for placement on dark backgrounds) */
+  dark?: boolean;
 }
 
 type SubmitState = "idle" | "loading" | "success" | "error";
@@ -25,6 +27,7 @@ export const NewsletterForm = ({
   onSuccess,
   buttonLabel = "Subscribe",
   layout = "stacked",
+  dark = false,
 }: NewsletterFormProps) => {
   const emailId = useId();
   const [email, setEmail] = useState("");
@@ -117,12 +120,14 @@ export const NewsletterForm = ({
             required
             disabled={submitState === "loading"}
             error={submitState === "error"}
+            className={dark ? "border-white/20 bg-white/10 text-white placeholder:text-white/40 focus:border-accent-primary" : undefined}
           />
         </div>
 
         <Button
           type="submit"
           size="sm"
+          variant={dark ? "accent" : "primary"}
           disabled={submitState === "loading"}
           fullWidth={layout === "stacked"}
         >
@@ -133,7 +138,7 @@ export const NewsletterForm = ({
       <p
         className={cn(
           "text-body-sm",
-          submitState === "error" ? "text-danger" : "text-text-tertiary",
+          submitState === "error" ? "text-danger" : dark ? "text-white/40" : "text-text-tertiary",
         )}
         aria-live="polite"
       >

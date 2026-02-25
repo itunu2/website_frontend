@@ -5,24 +5,44 @@ import type { ButtonHTMLAttributes } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-const baseStyles =
-  "relative inline-flex min-h-11 touch-manipulation items-center justify-center gap-2 overflow-hidden rounded-lg font-semibold transition-all duration-300 ease-out focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-accent disabled:cursor-not-allowed disabled:opacity-50";
+/* ─── Design tokens ───────────────────────────────────────── */
 
-const variantStyles: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "bg-accent-primary text-white shadow-md hover:bg-accent-hover hover:shadow-xl active:shadow-sm",
-  secondary:
-    "border-2 border-border-strong bg-transparent text-text-primary shadow-sm hover:border-accent-primary hover:text-accent-primary hover:shadow-md hover:bg-accent-primary/5 active:shadow-sm",
-  ghost: "text-text-secondary hover:text-accent-primary hover:bg-accent-primary/5 active:bg-accent-primary/10",
+const base =
+  "relative inline-flex items-center justify-center gap-2 font-body font-medium transition-all duration-250 ease-[cubic-bezier(0.16,1,0.3,1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-border-accent disabled:pointer-events-none disabled:opacity-50";
+
+const variants: Record<NonNullable<ButtonProps["variant"]>, string> = {
+  primary: [
+    "bg-bg-dark text-white rounded-lg shadow-sm",
+    "hover:-translate-y-0.5 hover:shadow-lg",
+    "active:translate-y-0 active:shadow-xs",
+  ].join(" "),
+  secondary: [
+    "rounded-lg border-[1.5px] border-text-primary/20 text-text-primary bg-transparent",
+    "hover:bg-bg-dark hover:text-white hover:border-bg-dark hover:-translate-y-0.5 hover:shadow-md",
+    "active:translate-y-0 active:shadow-xs",
+  ].join(" "),
+  accent: [
+    "bg-accent-primary text-white rounded-lg shadow-sm",
+    "hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg",
+    "active:translate-y-0 active:shadow-xs",
+  ].join(" "),
+  ghost: [
+    "rounded-lg text-text-secondary",
+    "hover:text-accent-primary hover:bg-accent-subtle",
+    "active:bg-accent-subtle/60",
+  ].join(" "),
 };
 
-const sizeStyles: Record<NonNullable<ButtonProps["size"]>, string> = {
-  sm: "px-4 py-2.5 text-body-sm",
-  md: "px-8 py-3.5 text-body",
-  lg: "px-10 py-4 text-body-lg",
+const sizes: Record<NonNullable<ButtonProps["size"]>, string> = {
+  sm: "h-10 px-5 text-[0.8125rem] tracking-[0.01em]",
+  md: "h-11 px-7 text-[0.875rem] tracking-[0.01em]",
+  lg: "h-12 px-9 text-[0.9375rem] tracking-[0.01em]",
 };
+
+/* ─── Types ───────────────────────────────────────────────── */
 
 interface BaseButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "secondary" | "accent" | "ghost";
   size?: "sm" | "md" | "lg";
   fullWidth?: boolean;
 }
@@ -38,33 +58,22 @@ interface ButtonStandardProps extends BaseButtonProps {
 
 type ButtonProps = ButtonStandardProps | ButtonAsLinkProps;
 
+/* ─── Component ───────────────────────────────────────────── */
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = "primary", size = "md", fullWidth, className, href, children, ...props }, ref) => {
-    const combinedClassName = cn(
-      baseStyles,
-      variantStyles[variant],
-      sizeStyles[size],
-      fullWidth && "w-full",
-      className,
-    );
+    const cls = cn(base, variants[variant], sizes[size], fullWidth && "w-full", className);
 
     if (href) {
       return (
-        <Link 
-          className={combinedClassName} 
-          href={href}
-        >
+        <Link className={cls} href={href}>
           {children}
         </Link>
       );
     }
 
     return (
-      <button 
-        ref={ref} 
-        className={combinedClassName} 
-        {...props}
-      >
+      <button ref={ref} className={cls} {...props}>
         {children}
       </button>
     );
@@ -72,5 +81,4 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
 );
 
 Button.displayName = "Button";
-
 export type { ButtonProps };

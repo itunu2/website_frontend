@@ -131,7 +131,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
     <div
       role="radiogroup"
       aria-label="Theme switcher"
-      className={`inline-flex items-center gap-1 rounded-full border border-border-subtle bg-bg-surface p-1 shadow-sm transition-colors duration-300 ${className || ""}`}
+      className={`inline-flex items-center gap-0.5 rounded-full border border-border-subtle bg-bg-surface/80 p-0.5 shadow-xs transition-colors duration-300 ${className || ""}`}
     >
       {themeOptions.map((option) => {
         const Icon = icons[option.value];
@@ -145,9 +145,9 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
             aria-checked={isActive}
             aria-label={option.ariaLabel}
             onClick={() => setMode(option.value)}
-            className="relative flex h-11 w-11 touch-manipulation items-center justify-center rounded-full transition-colors"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            className="relative flex h-7 w-7 touch-manipulation items-center justify-center rounded-full transition-colors"
+            whileHover={{ scale: 1.08 }}
+            whileTap={{ scale: 0.92 }}
           >
             <AnimatePresence>
               {isActive && hydrated && (
@@ -157,7 +157,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.22, ease: [0.65, 0, 0.35, 1] }}
+                  transition={{ duration: 0.2, ease: [0.65, 0, 0.35, 1] }}
                 />
               )}
             </AnimatePresence>
@@ -168,7 +168,7 @@ export const ThemeSwitcher = ({ className }: ThemeSwitcherProps) => {
               }}
               transition={{ duration: 0.15 }}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className="h-3.5 w-3.5" />
             </motion.span>
           </motion.button>
         );

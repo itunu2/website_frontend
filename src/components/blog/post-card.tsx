@@ -47,7 +47,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
           )}
 
           {/* Content Section */}
-          <div className="flex flex-col justify-center gap-6 bg-bg-elevated p-8 md:col-span-2 md:p-10 lg:p-12">
+          <div className="flex flex-col justify-center gap-4 bg-bg-dark p-6 sm:gap-6 sm:p-8 md:col-span-2 md:p-10 lg:p-12">
             {/* Category/Tag */}
             {post.tags && post.tags.length > 0 && (
               <p className="text-caption font-bold uppercase tracking-[0.25em] text-accent-primary">
@@ -56,24 +56,24 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
             )}
 
             {/* Title */}
-            <h2 className="font-display text-h1 font-bold leading-[1.1] text-text-primary transition-colors duration-200 group-hover:text-accent-primary lg:text-display">
+            <h2 className="font-display text-h2 leading-[1.1] text-bg-page transition-colors duration-200 group-hover:text-accent-primary sm:text-h1 lg:text-display">
               {post.title}
             </h2>
 
             {/* Description */}
             {post.description && (
-              <p className="text-body-lg leading-[1.7] text-text-secondary line-clamp-3">
+              <p className="text-body-lg leading-[1.7] text-bg-page/60 line-clamp-3">
                 {post.description}
               </p>
             )}
 
             <div className="flex flex-col gap-6">
               {/* Metadata */}
-              <div className="flex items-center gap-3 text-body-sm font-medium text-text-tertiary">
+              <div className="flex items-center gap-3 text-body-sm font-medium text-bg-page/40">
                 <time dateTime={post.publishedDate}>
                   {formatDate(post.publishedDate)}
                 </time>
-                <span className="text-text-tertiary">·</span>
+                <span className="text-bg-page/40">·</span>
                 <span>{estimateReadingTime(post.content)}</span>
               </div>
 
@@ -81,7 +81,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
               {post.tags && post.tags.length > 1 && (
                 <div className="flex flex-wrap gap-2">
                   {post.tags.slice(1, 4).map((tag) => (
-                    <Tag key={tag} variant="default">
+                    <Tag key={tag} variant="dark">
                       {tag}
                     </Tag>
                   ))}
@@ -89,7 +89,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
               )}
 
               {/* Read More Indicator */}
-              <div className="flex items-center gap-2 text-body font-bold text-accent-primary transition-all duration-200 group-hover:gap-3">
+              <div className="flex items-center gap-2 text-body font-medium text-accent-primary transition-all duration-200 group-hover:gap-3">
                 <span className="transition-transform duration-200 group-hover:translate-x-0.5">Read the full story</span>
                 <ArrowRightIcon className="h-5 w-5 transition-transform duration-200 group-hover:translate-x-1" />
               </div>
@@ -103,7 +103,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
   // Standard variant
   return (
     <Card as="article" variant="interactive" className="group flex h-full flex-col p-0!">
-      <Link href={postUrl} className="flex h-full flex-col p-6 md:p-7">
+      <Link href={postUrl} className="flex h-full flex-col p-4 sm:p-6 md:p-7">
         {/* Fixed aspect ratio image - always same size */}
         {featuredImageData ? (
           <div className="relative mb-5 aspect-video w-full shrink-0 overflow-hidden rounded-lg">
@@ -147,7 +147,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
           </div>
 
           {/* Title - clamped to 2 lines for consistency */}
-          <h3 className="mb-3 font-display text-h3 font-bold leading-[1.2] text-text-primary transition-colors duration-200 group-hover:text-accent-primary line-clamp-2">
+          <h3 className="mb-3 font-display text-h3 leading-[1.2] text-text-primary transition-colors duration-200 group-hover:text-accent-primary line-clamp-2">
             {post.title}
           </h3>
 

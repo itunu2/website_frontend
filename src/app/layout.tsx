@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { DM_Serif_Display, DM_Sans, Caveat } from "next/font/google";
 import { siteIdentity } from "@/config/site";
 import { env } from "@/config/env";
 import { ThemeScript } from "@/components/theme/theme-script";
@@ -11,10 +11,26 @@ import { NewsletterPopup } from "@/components/newsletter/newsletter-popup";
 import { MotionRoot } from "@/components/motion/motion-root";
 import "./globals.css";
 
-const inter = Inter({
+const dmSerifDisplay = DM_Serif_Display({
+  subsets: ["latin"],
+  weight: ["400"],
+  style: ["normal", "italic"],
+  variable: "--font-dm-serif-display",
+  display: "swap",
+  preload: true,
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  variable: "--font-dm-sans",
+  display: "swap",
+  preload: true,
+});
+
+const caveat = Caveat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-  variable: "--font-inter",
+  variable: "--font-caveat",
   display: "swap",
   preload: true,
 });
@@ -67,7 +83,7 @@ export default function RootLayout({
       <head>
         <ThemeScript />
       </head>
-      <body className={`${inter.variable} bg-bg-page text-text-primary antialiased`}>
+      <body className={`${dmSerifDisplay.variable} ${dmSans.variable} ${caveat.variable} bg-bg-page text-text-primary antialiased`}>
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-100 focus:rounded-lg focus:bg-accent-primary focus:px-4 focus:py-2 focus:text-white focus:shadow-lg focus:outline-none"

@@ -10,6 +10,7 @@ const variantStyles = {
   default: "bg-bg-elevated text-text-secondary",
   accent: "bg-accent-subtle text-accent-primary border border-border-accent/30",
   outline: "bg-transparent text-text-tertiary border border-border-default",
+  dark: "bg-white/10 text-white/70 border border-white/10",
 } as const;
 
 interface BaseTagProps extends Omit<HTMLAttributes<HTMLElement>, "onClick"> {

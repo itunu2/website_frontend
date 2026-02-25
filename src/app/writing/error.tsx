@@ -25,7 +25,7 @@ export default function WritingError({
       <Section className="bg-bg-elevated pt-20 pb-14 md:pt-24 md:pb-16">
         <Container>
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="mb-6 font-display text-display font-semibold text-text-primary">
+            <h1 className="mb-6 font-display text-display text-text-primary">
               Something went wrong
             </h1>
             <p className="mb-8 text-body-lg text-text-secondary">

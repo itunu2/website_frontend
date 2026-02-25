@@ -21,7 +21,7 @@ const resolveMediaUrl = (url?: string | null): string => {
   return `${env.client.NEXT_PUBLIC_STRAPI_BASE_URL}${url}`;
 };
 
-const headingBase = "font-display font-semibold text-text-primary tracking-tight";
+const headingBase = "font-display text-text-primary tracking-tight";
 
 const components = {
   h1: ({ className, ...props }: ComponentPropsWithoutRef<"h1">) => (

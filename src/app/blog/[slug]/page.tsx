@@ -82,7 +82,7 @@ export default async function PostPage({ params }: PostPageProps) {
               </p>
             )}
 
-            <h1 className="mb-6 font-display text-display font-semibold text-text-primary">
+            <h1 className="mb-6 font-display text-display text-text-primary">
               {post.title}
             </h1>
 

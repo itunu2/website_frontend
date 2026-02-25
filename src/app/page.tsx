@@ -1,27 +1,24 @@
 import { Hero } from "@/components/home/hero";
-import { FeaturedWriting } from "@/components/home/featured-writing";
-import { WhatIWrite } from "@/components/home/what-i-write";
-import { Testimonials } from "@/components/home/testimonials";
+import { PainPoints } from "@/components/home/pain-points";
+import { ValueProposition } from "@/components/home/value-proposition";
+import { Services } from "@/components/home/services";
 import { AboutTeaser } from "@/components/home/about-teaser";
-import { FinalCTA } from "@/components/home/final-cta";
-import { getBlogPosts, getPortfolioPosts } from "@/lib/strapi/blog";
+import { CTABand } from "@/components/home/cta-band";
+import { TestimonialQuote } from "@/components/home/testimonial-quote";
+import { testimonials } from "@/config/homepage";
 
-export default async function Home() {
-  // Fetch featured posts from Strapi (posts explicitly marked with isFeatured: true)
-  const { posts: featuredPosts } = await getBlogPosts({ featured: true, pageSize: 3 });
-
-  // If no featured posts, fallback to latest 3 portfolio posts (showcasing professional work)
-  const displayPosts =
-    featuredPosts.length > 0 ? featuredPosts : (await getPortfolioPosts({ pageSize: 3 })).posts;
-
+export default function Home() {
   return (
     <>
       <Hero />
-      <FeaturedWriting posts={displayPosts} />
-      <WhatIWrite />
-      <Testimonials />
+      <TestimonialQuote {...testimonials[0]} variant="cream" />
+      <PainPoints />
+      <ValueProposition />
+      <TestimonialQuote {...testimonials[1]} variant="white" />
+      <Services />
       <AboutTeaser />
-      <FinalCTA />
+      <TestimonialQuote {...testimonials[2]} variant="cream" />
+      <CTABand />
     </>
   );
 }

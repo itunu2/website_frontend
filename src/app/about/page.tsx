@@ -50,23 +50,30 @@ export default function AboutPage() {
             <div className="flex flex-col md:flex-row items-center gap-12">
               {/* Profile Picture */}
               <div className="shrink-0">
-                <div className="relative w-48 h-56 md:w-56 md:h-64 rounded-2xl overflow-hidden shadow-xl ring-1 ring-border-default bg-bg-subtle">
+                <div className="relative w-44 h-52 sm:w-48 sm:h-56 md:w-56 md:h-64">
+                  {/* Warm backdrop glow */}
+                  <div className="absolute inset-0 translate-y-[5%] scale-[0.85] rounded-full bg-accent-primary/[0.06] blur-3xl" aria-hidden />
+                  <div className="absolute inset-0 translate-y-[10%] scale-[0.65] rounded-full bg-bg-warm/40 blur-2xl" aria-hidden />
                   <Image 
-                    src="/itunu_picture.jpg" 
+                    src="/itunu_picture.PNG" 
                     alt="Itunu Adegbayi"
                     width={224}
                     height={280}
-                    className="w-full h-full object-cover object-center"
+                    className="relative w-full h-full object-contain object-top drop-shadow-[0_8px_24px_rgba(28,25,23,0.08)]"
                     priority
-                    sizes="(max-width: 768px) 192px, 224px"
+                    sizes="(max-width: 640px) 176px, (max-width: 768px) 192px, 224px"
                     quality={88}
+                    style={{
+                      maskImage: "radial-gradient(ellipse 76% 72% at 50% 40%, black 62%, transparent 100%)",
+                      WebkitMaskImage: "radial-gradient(ellipse 76% 72% at 50% 40%, black 62%, transparent 100%)",
+                    }}
                   />
                 </div>
               </div>
               
               {/* Text Content */}
               <div className="flex-1 text-center md:text-left">
-                <h1 className="mb-4 font-display text-h1 md:text-display font-bold text-text-primary leading-tight">
+                <h1 className="mb-4 font-display text-h1 md:text-display text-text-primary leading-tight">
                   I write to connect ideas, people, and stories.
                 </h1>
                 <p className="text-body-lg text-text-secondary leading-relaxed">
@@ -125,7 +132,7 @@ export default function AboutPage() {
           <div className="grid gap-6 md:grid-cols-2">
             {values.map((value) => (
               <Card key={value.id} variant="elevated">
-                <h3 className="mb-3 font-display text-h3 font-semibold text-text-primary">
+                <h3 className="mb-3 font-display text-h3 text-text-primary">
                   {value.title}
                 </h3>
                 <p className="text-body text-text-secondary">{value.description}</p>
@@ -139,15 +146,15 @@ export default function AboutPage() {
       <Section className="bg-bg-elevated">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
-            <h2 className="mb-4 font-display text-h2 font-semibold text-text-primary">
+            <h2 className="mb-4 font-display text-h2 text-text-primary">
               Explore my work
             </h2>
             <p className="mb-8 text-body-lg text-text-secondary">
               Read selected essays and stories, or get in touch to discuss a project.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-4">
-              <Button href={siteRoutes.writing} size="lg">
-                View writing
+              <Button href={siteRoutes.portfolio} size="lg">
+                View Portfolio
               </Button>
               <Button href={callsToAction.primary.href} size="lg" variant="secondary">
                 {callsToAction.primary.label}

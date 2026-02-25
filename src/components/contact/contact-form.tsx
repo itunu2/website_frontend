@@ -115,7 +115,7 @@ export default function ContactForm() {
           {/* Contact Info */}
           <div className="space-y-6">
             <div>
-              <h2 className="mb-4 font-display text-h3 font-semibold text-text-primary">
+              <h2 className="mb-4 font-display text-h3 text-text-primary">
                 Other ways to connect
               </h2>
               <div className="space-y-3 text-body text-text-secondary">
@@ -136,7 +136,7 @@ export default function ContactForm() {
             </div>
 
             <Card variant="flat">
-              <h3 className="mb-3 font-display text-h4 font-semibold text-text-primary">
+              <h3 className="mb-3 font-display text-h4 text-text-primary">
                 Response time
               </h3>
               <p className="text-body-sm text-text-secondary">
@@ -145,7 +145,7 @@ export default function ContactForm() {
             </Card>
 
             <Card variant="flat">
-              <h3 className="mb-3 font-display text-h4 font-semibold text-text-primary">
+              <h3 className="mb-3 font-display text-h4 text-text-primary">
                 What to include
               </h3>
               <p className="text-body-sm text-text-secondary">

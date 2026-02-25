@@ -26,7 +26,7 @@ export const FeaturedWriting = ({ posts }: FeaturedWritingProps) => {
       <Container size={isSinglePost ? "lg" : "xl"}>
         {/* Creative Header with Side-by-Side Layout */}
         <motion.div 
-          className="mb-16 grid gap-12 lg:grid-cols-2 lg:gap-16"
+          className="mb-8 grid gap-6 sm:mb-12 sm:gap-10 lg:grid-cols-2 lg:gap-16"
           initial={shouldReduceMotion ? false : { opacity: 0, y: 50 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
@@ -44,7 +44,7 @@ export const FeaturedWriting = ({ posts }: FeaturedWritingProps) => {
               Latest Work
             </motion.span>
             <motion.h2 
-              className="font-display text-display font-bold leading-tight text-text-primary"
+              className="font-display text-display leading-tight text-text-primary"
               initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -67,7 +67,7 @@ export const FeaturedWriting = ({ posts }: FeaturedWritingProps) => {
             </p>
             <div>
               <Button href="/writing" variant="secondary" size="md" className="group">
-                <span>View All Writing</span>
+                <span>View Portfolio</span>
                 <svg className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
                 </svg>
@@ -89,14 +89,14 @@ export const FeaturedWriting = ({ posts }: FeaturedWritingProps) => {
           </motion.div>
         ) : (
           // Multiple Posts: Masonry-style Grid
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
+          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
             {displayPosts.map((post, index) => {
               // Create an interesting asymmetric layout
               const gridClass = index === 0 
                 ? "lg:col-span-7" 
                 : index === 1 
                 ? "lg:col-span-5" 
-                : "lg:col-span-12";
+                : "lg:col-span-8 lg:col-start-3";
               
               return (
                 <motion.div

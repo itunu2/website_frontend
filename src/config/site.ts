@@ -1,7 +1,7 @@
 export const siteRoutes = {
   home: "/",
   about: "/about",
-  writing: "/writing",
+  portfolio: "/writing",
   blog: "/blog",
   contact: "/contact",
   privacy: "/privacy",
@@ -30,17 +30,17 @@ export interface CtaLink {
 
 export const siteIdentity = {
   fullName: "Itunu Adegbayi",
-  role: "Writer & Storyteller",
+  role: "B2B SaaS & Martech Content Writer",
   summary:
-    "Independent writer crafting thoughtful narratives across culture, brand storytelling, and editorial essays.",
-  heroTagline: "Crafting narratives that connect, clarify, and compel.",
+    "I help B2B SaaS and Martech teams turn complex products into content that attracts the right buyers and converts them.",
+  heroTagline: "B2B Content Made Human.",
 };
 
 export const navigation: { primary: NavLink[]; secondary: NavLink[] } = {
   primary: [
     { label: "Home", href: siteRoutes.home },
     { label: "About", href: siteRoutes.about },
-    { label: "Writing", href: siteRoutes.writing },
+    { label: "Portfolio", href: siteRoutes.portfolio },
     { label: "Blog", href: siteRoutes.blog },
     { label: "Contact", href: siteRoutes.contact },
   ],
@@ -48,8 +48,8 @@ export const navigation: { primary: NavLink[]; secondary: NavLink[] } = {
 };
 
 export const callsToAction = {
-  primary: { label: "Work with me", href: siteRoutes.contact, ariaLabel: "Work with Itunu" },
-  secondary: { label: "Read writing", href: siteRoutes.blog },
+  primary: { label: "Let's Talk", href: siteRoutes.contact, ariaLabel: "Contact Itunu" },
+  secondary: { label: "See My Work", href: siteRoutes.portfolio },
 };
 
 export const socialLinks: SocialLink[] = [
@@ -80,5 +80,5 @@ export const socialLinks: SocialLink[] = [
 
 export const footerCopy = {
   note:
-    "Portfolio and journal for Itunu Adegbayi. Stories across culture, strategy, and human-centric work.",
+    "B2B SaaS & Martech content writer. Helping brands sound like people — and sell like it, too.",
 };

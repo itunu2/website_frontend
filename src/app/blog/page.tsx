@@ -43,7 +43,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
             <p className="mb-4 text-body-sm font-semibold uppercase tracking-[0.4em] text-accent-primary">
               Journal
             </p>
-            <h1 className="mb-6 font-display text-display font-semibold leading-tight text-text-primary">Blog</h1>
+            <h1 className="mb-6 font-display text-display leading-tight text-text-primary">Blog</h1>
             <p className="text-body-lg leading-relaxed text-text-secondary">
               Thoughts, essays, and stories about culture, creativity, and craft.
             </p>
