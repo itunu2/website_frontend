@@ -23,9 +23,11 @@ export const Hero = () => {
         };
 
   return (
-    <section className="relative flex min-h-[85svh] flex-col justify-center overflow-hidden bg-bg-page pt-16 pb-24 sm:pt-20 sm:pb-32 md:min-h-[94vh]">
-      <Container className="relative z-10">
-        <div className="max-w-[780px]">
+    <section className="relative flex h-[calc(100svh-3.5rem)] flex-col bg-bg-page sm:h-[calc(100svh-4.25rem)]">
+      {/* Main content — grows to fill available space, vertically centered */}
+      <div className="flex flex-1 flex-col justify-center">
+        <Container className="relative z-10">
+          <div className="max-w-[780px]">
           {/* Eyebrow */}
           <motion.p
             className="mb-6 text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-text-tertiary md:mb-8"
@@ -59,29 +61,30 @@ export const Hero = () => {
 
           {/* CTAs */}
           <motion.div
-            className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4"
+            className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:items-center sm:gap-4"
             {...reveal(0.3)}
           >
-            <Button href={heroContent.primaryCta.href} size="lg" variant="primary">
+            <Button href={heroContent.primaryCta.href} size="lg" variant="primary" className="w-full sm:w-auto">
               {heroContent.primaryCta.label}
             </Button>
-            <Button href={heroContent.secondaryCta.href} size="lg" variant="secondary">
+            <Button href={heroContent.secondaryCta.href} size="lg" variant="secondary" className="w-full sm:w-auto">
               {heroContent.secondaryCta.label}
             </Button>
           </motion.div>
         </div>
-      </Container>
+        </Container>
+      </div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-32 left-1/2 hidden -translate-x-1/2 sm:block"
+        className="absolute bottom-28 left-1/2 hidden -translate-x-1/2 sm:bottom-32 sm:block"
         {...reveal(0.5)}
       >
         <ScrollChevron />
       </motion.div>
 
-      {/* Logo marquee */}
-      <motion.div className="absolute inset-x-0 bottom-0 pb-5 md:pb-7" {...reveal(0.4)}>
+      {/* Logo marquee — pinned to bottom of the viewport */}
+      <motion.div className="shrink-0 pb-4 sm:pb-5 md:pb-7" {...reveal(0.4)}>
         <LogoMarquee logos={socialProofLogos} label={heroContent.socialProofLabel} />
       </motion.div>
     </section>

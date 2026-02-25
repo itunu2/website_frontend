@@ -43,7 +43,7 @@ export default function ContactForm() {
   return (
     <Section className="bg-bg-page">
       <Container>
-        <div className="mx-auto grid max-w-5xl gap-12 lg:grid-cols-3">
+        <div className="mx-auto grid max-w-5xl gap-8 sm:gap-12 lg:grid-cols-3">
           {/* Form */}
           <div className="lg:col-span-2">
             <Card variant="elevated">

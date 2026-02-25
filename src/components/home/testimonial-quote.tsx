@@ -25,7 +25,7 @@ export const TestimonialQuote = ({
 
   return (
     <section className={`${bg} py-8 sm:py-12 md:py-20`}>
-      <Container className="max-w-[740px]">
+      <Container className="max-w-[740px] px-4 sm:px-6">
         <motion.figure
           className="relative"
           initial={off ? undefined : { opacity: 0, y: 24 }}

@@ -11,7 +11,7 @@ export const heroContent = {
     "I help B2B SaaS and Martech teams turn complex products into content that attracts the right buyers and converts them.",
   primaryCta: { label: "See My Work", href: "/writing" },
   secondaryCta: { label: "Let's Talk", href: "/contact" },
-  socialProofLabel: "Trusted by fast-growing teams at:",
+  socialProofLabel: "Brands I've worked with",
 };
 
 export const socialProofLogos = [

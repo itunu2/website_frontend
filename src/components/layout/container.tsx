@@ -12,7 +12,7 @@ interface ContainerProps extends PropsWithChildren {
  * Override with className when needed (e.g. max-w-3xl for narrow sections).
  */
 export const Container = ({ className, children }: ContainerProps) => (
-  <div className={cn("mx-auto w-full max-w-[1100px] px-6 md:px-8", className)}>
+  <div className={cn("mx-auto w-full max-w-[1100px] px-4 sm:px-6 md:px-8", className)}>
     {children}
   </div>
 );

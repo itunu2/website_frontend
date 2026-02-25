@@ -61,7 +61,7 @@ export const Card = forwardRef<HTMLElement, CardProps>(
       <MotionComponent
         ref={ref as any}
         className={cn(
-          "rounded-xl p-6 md:p-8 transition-[box-shadow,border-color] duration-300 ease-out relative overflow-hidden",
+          "rounded-lg sm:rounded-xl p-4 sm:p-6 md:p-8 transition-[box-shadow,border-color] duration-300 ease-out relative overflow-hidden",
           variantStyles[variant],
           className
         )}

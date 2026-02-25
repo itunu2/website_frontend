@@ -9,10 +9,10 @@ export const SiteFooter = () => {
   return (
     <footer className="relative bg-bg-dark text-bg-page">
       {/* Subtle separator — thin amber accent line */}
-      <div className="mx-auto h-px w-full max-w-[1100px] bg-gradient-to-r from-transparent via-accent-primary/20 to-transparent" aria-hidden />
+      <div className="mx-auto h-px w-full max-w-[1100px] bg-linear-to-r from-transparent via-accent-primary/20 to-transparent" aria-hidden />
       <Container className="py-12 md:py-16">
         {/* Newsletter */}
-        <div className="mb-8 rounded-xl border border-white/10 bg-white/[0.07] p-4 sm:p-5 md:p-6">
+        <div className="-mx-4 mb-8 border-y border-white/10 bg-white/[0.07] px-4 py-5 sm:mx-0 sm:rounded-xl sm:border sm:p-5 md:p-6">
           <div className="flex flex-col gap-3 sm:gap-4 md:flex-row md:items-center md:gap-8">
             <div className="md:flex-1">
               <p className="font-display text-h4 text-bg-page">Join my newsletter</p>

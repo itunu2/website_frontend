@@ -11,7 +11,7 @@ export const CTABand = () => {
   const off = !!useReducedMotion();
 
   return (
-    <section className="relative overflow-hidden bg-bg-dark py-16 sm:py-24 md:py-36">
+    <section className="relative overflow-hidden bg-bg-dark py-14 sm:py-24 md:py-36">
       {/* Background depth layers */}
       {/* Subtle amber radial glow — top center */}
       <div
@@ -43,7 +43,7 @@ export const CTABand = () => {
         aria-hidden
       />
 
-      <Container className="relative z-10 max-w-[680px] px-6 text-center">
+      <Container className="relative z-10 max-w-[680px] text-center">
         {/* Headline */}
         <motion.h2
           className="font-display text-h2 leading-tight text-bg-page sm:text-h1 md:text-display"

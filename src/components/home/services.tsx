@@ -32,7 +32,7 @@ const AccordionRow = ({
     <button
       type="button"
       onClick={onToggle}
-      className="group flex w-full items-center gap-5 py-5 text-left md:py-6"
+      className="group flex w-full items-center gap-4 py-4 text-left sm:gap-5 sm:py-5 md:py-6"
       aria-expanded={isOpen}
     >
       {/* Number */}

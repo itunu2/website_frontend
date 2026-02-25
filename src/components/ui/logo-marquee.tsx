@@ -43,19 +43,19 @@ export const LogoMarquee = ({ logos, label, className }: LogoMarqueeProps) => {
         }}
       >
         <div
-          className="flex w-max items-center gap-16 hover:[animation-play-state:paused] md:gap-24"
+          className="flex w-max items-center gap-12 hover:[animation-play-state:paused] sm:gap-16 md:gap-24"
           style={{ animation: "logo-marquee 42s linear infinite" }}
         >
           {duplicated.map((logo, i) => (
             <div
               key={`${logo.name}-${i}`}
-              className="flex h-10 w-24 shrink-0 items-center justify-center md:h-11 md:w-28"
+              className="flex h-10 w-28 shrink-0 items-center justify-center sm:h-11 sm:w-32 md:h-12 md:w-36"
             >
               <Image
                 src={logo.src}
                 alt={logo.alt}
-                width={96}
-                height={36}
+                width={128}
+                height={44}
                 className="h-full w-full object-contain opacity-40 grayscale transition-opacity duration-300 hover:opacity-60 dark:brightness-0 dark:invert"
                 unoptimized
               />

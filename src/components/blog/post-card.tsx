@@ -25,7 +25,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
       <Card 
         as="article" 
         variant="elevated" 
-        className="group overflow-hidden"
+        className="group overflow-hidden rounded-none sm:rounded-xl"
       >
         <Link 
           href={postUrl} 
@@ -47,7 +47,7 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
           )}
 
           {/* Content Section */}
-          <div className="flex flex-col justify-center gap-4 bg-bg-dark p-6 sm:gap-6 sm:p-8 md:col-span-2 md:p-10 lg:p-12">
+          <div className="flex flex-col justify-center gap-4 bg-bg-dark p-5 sm:gap-6 sm:p-6 md:col-span-2 md:p-10 lg:p-12">
             {/* Category/Tag */}
             {post.tags && post.tags.length > 0 && (
               <p className="text-caption font-bold uppercase tracking-[0.25em] text-accent-primary">
@@ -102,8 +102,8 @@ export const PostCard = ({ post, variant = "standard", showLabel }: PostCardProp
 
   // Standard variant
   return (
-    <Card as="article" variant="interactive" className="group flex h-full flex-col p-0!">
-      <Link href={postUrl} className="flex h-full flex-col p-4 sm:p-6 md:p-7">
+    <Card as="article" variant="interactive" className="group flex h-full flex-col rounded-none sm:rounded-xl p-0!">
+      <Link href={postUrl} className="flex h-full flex-col p-3.5 sm:p-5 md:p-7">
         {/* Fixed aspect ratio image - always same size */}
         {featuredImageData ? (
           <div className="relative mb-5 aspect-video w-full shrink-0 overflow-hidden rounded-lg">

@@ -89,7 +89,7 @@ export const FeaturedWriting = ({ posts }: FeaturedWritingProps) => {
           </motion.div>
         ) : (
           // Multiple Posts: Masonry-style Grid
-          <div className="grid gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
+          <div className="-mx-4 grid gap-4 sm:mx-0 sm:gap-8 md:grid-cols-2 lg:grid-cols-12 lg:gap-6">
             {displayPosts.map((post, index) => {
               // Create an interesting asymmetric layout
               const gridClass = index === 0 

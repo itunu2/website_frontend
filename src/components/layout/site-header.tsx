@@ -151,7 +151,7 @@ export const SiteHeader = () => {
             className="max-h-[calc(100svh-3.5rem)] overflow-y-auto border-t border-border-default md:hidden sm:max-h-[calc(100svh-4.25rem)]"
             style={{ backgroundColor }}
           >
-            <Container className="flex flex-col gap-1 py-4 pb-[calc(env(safe-area-inset-bottom)+0.75rem)]">
+            <Container className="flex flex-col gap-0.5 py-3 pb-[calc(env(safe-area-inset-bottom)+1rem)]">
               {navigation.primary.slice(1).map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -159,10 +159,10 @@ export const SiteHeader = () => {
                     key={item.href}
                     href={item.href}
                     className={`
-                      rounded-lg px-4 py-3 text-[0.9375rem] font-medium transition-colors duration-200
+                      rounded-lg px-3 py-3.5 text-[1rem] font-medium transition-colors duration-200
                       ${isActive
-                        ? "text-accent-primary"
-                        : "text-text-secondary hover:text-text-primary"
+                        ? "bg-bg-elevated/50 text-accent-primary"
+                        : "text-text-secondary active:bg-bg-elevated/30 hover:text-text-primary"
                       }
                     `}
                   >
@@ -170,10 +170,10 @@ export const SiteHeader = () => {
                   </Link>
                 );
               })}
-              <div className="mt-3 border-t border-border-subtle pt-3">
+              <div className="mt-2 border-t border-border-subtle pt-3">
                 <Link
                   href={callsToAction.primary.href}
-                  className="flex w-full items-center justify-center rounded-full bg-accent-primary px-5 py-2.5 text-[0.875rem] font-semibold text-white shadow-sm transition-colors hover:bg-accent-hover"
+                  className="flex w-full items-center justify-center rounded-full bg-accent-primary px-5 py-3 text-[0.9375rem] font-semibold text-white shadow-sm transition-colors hover:bg-accent-hover active:bg-accent-primary/90"
                 >
                   {callsToAction.primary.label}
                 </Link>

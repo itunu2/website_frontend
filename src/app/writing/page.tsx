@@ -41,7 +41,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
   return (
     <>
       {/* Hero */}
-      <Section className="bg-bg-elevated pt-20 pb-16 md:pt-32 md:pb-20">
+      <Section className="bg-bg-elevated pt-16 pb-12 sm:pt-20 sm:pb-16 md:pt-32 md:pb-20">
         <Container>
           <div className="mx-auto max-w-4xl text-center">
             <p className="mb-4 text-body-sm font-semibold uppercase tracking-[0.4em] text-accent-primary">
@@ -75,7 +75,7 @@ export default async function WritingPage({ searchParams }: WritingPageProps) {
 
           {regularPosts.length > 0 ? (
             <>
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              <div className="-mx-4 grid gap-4 sm:mx-0 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
                 {regularPosts.map((post) => (
                   <PostCard key={post.id} post={post} />
                 ))}
