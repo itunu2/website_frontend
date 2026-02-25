@@ -8,6 +8,7 @@ import { RequestIdProvider } from "@/components/providers/request-id-provider";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { NewsletterPopup } from "@/components/newsletter/newsletter-popup";
+import { StrapiKeepAlive } from "@/components/providers/strapi-keep-alive";
 import { MotionRoot } from "@/components/motion/motion-root";
 import "./globals.css";
 
@@ -98,6 +99,7 @@ export default function RootLayout({
               <SiteFooter />
             </div>
             <NewsletterPopup />
+            <StrapiKeepAlive />
           </MotionRoot>
         </RequestIdProvider>
       </body>
