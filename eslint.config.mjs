@@ -13,14 +13,6 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
-  {
-    files: ["**/*.test.{ts,tsx}", "tests/**/*.ts"],
-    languageOptions: {
-      globals: {
-        jest: "readonly",
-      },
-    },
-  },
 ]);
 
 export default eslintConfig;

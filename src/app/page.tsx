@@ -1,24 +1,25 @@
-import { Hero } from "@/components/home/hero";
-import { PainPoints } from "@/components/home/pain-points";
-import { ValueProposition } from "@/components/home/value-proposition";
-import { Services } from "@/components/home/services";
-import { AboutTeaser } from "@/components/home/about-teaser";
-import { CTABand } from "@/components/home/cta-band";
-import { TestimonialQuote } from "@/components/home/testimonial-quote";
-import { testimonials } from "@/config/homepage";
+import Navbar from "@/components/Navbar";
+import Hero from "@/components/Hero";
+import ClientLogos from "@/components/ClientLogos";
+import Stats from "@/components/Stats";
+import ValueCards from "@/components/ValueCards";
+import Services from "@/components/Services";
+import About from "@/components/About";
+import CTA from "@/components/CTA";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   return (
     <>
+      <Navbar />
       <Hero />
-      <TestimonialQuote {...testimonials[0]} variant="cream" />
-      <PainPoints />
-      <ValueProposition />
-      <TestimonialQuote {...testimonials[1]} variant="white" />
+      <ClientLogos />
+      <Stats />
+      <ValueCards />
       <Services />
-      <AboutTeaser />
-      <TestimonialQuote {...testimonials[2]} variant="cream" />
-      <CTABand />
+      <About />
+      <CTA />
+      <Footer />
     </>
   );
 }

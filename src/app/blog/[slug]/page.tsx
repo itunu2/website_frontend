@@ -1,197 +1,223 @@
-import { notFound } from "next/navigation";
-import Link from "next/link";
-import Image from "next/image";
-import { Container } from "@/components/layout/container";
-import { Section } from "@/components/layout/section";
-import { Tag } from "@/components/ui/tag";
-import { Button } from "@/components/ui/button";
-import { PostCard } from "@/components/blog/post-card";
-import { getBlogPostBySlug, getBlogPosts, getRelatedPosts } from "@/lib/strapi/blog";
-import { MarkdownContent } from "@/components/markdown/markdown-content";
-import { BlogNewsletterCta } from "@/components/newsletter/blog-newsletter-cta";
-import { siteRoutes } from "@/config/site";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Image from "next/image";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import MarkdownRenderer from "@/components/blog/MarkdownRenderer";
+import { getBlogPosts, getBlogPostBySlug, getRelatedPosts } from "@/lib/strapi/blog";
+import { env } from "@/config/env";
+import PostCard from "@/components/blog/PostCard";
 
-interface PostPageProps {
-  params: Promise<{ slug: string }>;
+function resolveImageUrl(url: string): string {
+  return url.startsWith("http")
+    ? url
+    : `${env.client.NEXT_PUBLIC_STRAPI_BASE_URL}${url}`;
 }
 
 export async function generateStaticParams() {
   try {
     const { posts } = await getBlogPosts({ pageSize: 100 });
-    return posts.map((post) => ({
-      slug: post.slug,
-    }));
+    return posts.map((post) => ({ slug: post.slug }));
   } catch {
     return [];
   }
 }
 
-export async function generateMetadata({ params }: PostPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
+  if (!post) return { title: "Post Not Found" };
 
-  if (!post) {
-    return {
-      title: "Post Not Found",
-    };
-  }
+  const imageUrl = post.featuredImage?.data?.attributes?.url;
 
   return {
-    title: post.title,
+    title: `${post.title} — Itunu Adegbayi`,
     description: post.description,
+    openGraph: {
+      title: post.title,
+      description: post.description,
+      type: "article",
+      publishedTime: post.publishedDate,
+      ...(imageUrl && { images: [{ url: resolveImageUrl(imageUrl) }] }),
+    },
   };
 }
 
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return new Intl.DateTimeFormat("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  }).format(date);
-};
-
-const estimateReadingTime = (content: string): string => {
-  const wordsPerMinute = 200;
-  const words = content.split(/\s+/).length;
-  const minutes = Math.ceil(words / wordsPerMinute);
-  return `${minutes} min read`;
-};
-
-export default async function PostPage({ params }: PostPageProps) {
+export default async function BlogPostPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
   const { slug } = await params;
   const post = await getBlogPostBySlug(slug);
 
-  if (!post) {
-    notFound();
-  }
+  if (!post) notFound();
 
-  const featuredImageData = post.featuredImage?.data;
   const relatedPosts = await getRelatedPosts(post, 3);
+  const imageUrl = post.featuredImage?.data?.attributes?.url;
+  const imageAlt =
+    post.featuredImage?.data?.attributes?.alternativeText ?? post.title;
+  const date = new Date(post.publishedDate).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
     <>
-      {/* Header */}
-      <Section className="bg-bg-elevated pt-20 pb-10 md:pt-24 md:pb-12">
-        <Container>
-          <article className="mx-auto max-w-3xl">
-            {post.tags && post.tags.length > 0 && (
-              <p className="mb-4 text-body-sm uppercase tracking-wider text-text-tertiary">
-                {post.tags[0]}
-              </p>
-            )}
+      <Navbar />
+      <article className="section-wrap" style={{ paddingTop: "var(--space-7)", paddingBottom: "var(--space-9)" }}>
+        {/* Back link */}
+        <Link
+          href="/blog"
+          style={{
+            fontSize: "var(--text-sm)",
+            fontWeight: 600,
+            color: "var(--accent-olive)",
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            marginBottom: "var(--space-6)",
+          }}
+        >
+          ← Back to blog
+        </Link>
 
-            <h1 className="mb-6 font-display text-display text-text-primary">
-              {post.title}
-            </h1>
-
-            {post.description && (
-              <p className="mb-6 text-body-lg text-text-secondary">{post.description}</p>
-            )}
-
-            <div className="flex flex-wrap items-center gap-4 text-body-sm text-text-tertiary">
-              <time dateTime={post.publishedDate}>{formatDate(post.publishedDate)}</time>
-              <span>·</span>
-              <span>{estimateReadingTime(post.content)}</span>
-            </div>
-
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-6 flex flex-wrap gap-2">
-                {post.tags.map((tag) => (
-                  <Tag key={tag}>{tag}</Tag>
-                ))}
-              </div>
-            )}
-          </article>
-        </Container>
-      </Section>
-
-      {/* Featured Image */}
-      {featuredImageData && (
-        <Section className="bg-bg-page pt-0">
-          <Container>
-            <div className="relative mx-auto aspect-video max-w-4xl overflow-hidden rounded-2xl">
-              <Image
-                src={featuredImageData.attributes.url}
-                alt={featuredImageData.attributes.alternativeText || post.title}
-                fill
-                className="object-cover"
-                priority
-                sizes="(max-width: 768px) 100vw, (max-width: 1280px) 80vw, 1024px"
-              />
-            </div>
-          </Container>
-        </Section>
-      )}
-
-      {/* Content */}
-      <Section className="bg-bg-page">
-        <Container>
-          <div className="mx-auto max-w-3xl">
-            <MarkdownContent content={post.content} />
-            <div className="mt-12">
-              <BlogNewsletterCta />
-            </div>
-          </div>
-        </Container>
-      </Section>
-
-      {/* Related Posts */}
-      {relatedPosts.length > 0 && (
-        <Section className="bg-bg-page border-t border-border-subtle">
-          <Container>
-            <div className="mx-auto max-w-5xl">
-              <h2 className="mb-8 text-h3 font-semibold text-text-primary">Related Posts</h2>
-              <div className="grid gap-8 md:grid-cols-3">
-                {relatedPosts.map((relatedPost) => (
-                  <PostCard key={relatedPost.id} post={relatedPost} />
-                ))}
-              </div>
-            </div>
-          </Container>
-        </Section>
-      )}
-
-      {/* Footer Navigation */}
-      <Section className="bg-bg-elevated">
-        <Container>
-          <div className="mx-auto max-w-3xl">
-            <nav aria-label="Breadcrumb" className="mb-6">
-              <ol className="flex items-center gap-2 text-body-sm text-text-secondary">
-                <li>
-                  <Link href={siteRoutes.home} className="hover:text-accent-primary transition-colors">
-                    Home
-                  </Link>
-                </li>
-                <li>/</li>
-                <li>
-                  <Link href={siteRoutes.blog} className="hover:text-accent-primary transition-colors">
-                    Blog
-                  </Link>
-                </li>
-                <li>/</li>
-                <li className="text-text-primary">{post.title}</li>
-              </ol>
-            </nav>
-
-            <div className="border-t border-border-subtle pt-8">
-              <div className="flex items-center justify-between">
-                <Link
-                  href={siteRoutes.blog}
-                  className="text-body text-accent-primary transition-colors hover:text-accent-hover"
+        {/* Header */}
+        <header style={{ maxWidth: 760, marginBottom: "var(--space-7)" }}>
+          {/* Tags */}
+          {post.tags?.length > 0 && (
+            <div
+              style={{
+                display: "flex",
+                gap: "var(--space-2)",
+                flexWrap: "wrap",
+                marginBottom: "var(--space-4)",
+              }}
+            >
+              {post.tags.map((tag) => (
+                <span
+                  key={tag}
+                  style={{
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    letterSpacing: "0.08em",
+                    color: "var(--accent-deep)",
+                    background: "color-mix(in oklch, var(--accent-gold), white 40%)",
+                    border: "1px solid color-mix(in oklch, var(--accent-gold), black 12%)",
+                    padding: "4px 10px",
+                    borderRadius: "var(--radius-pill)",
+                  }}
                 >
-                  ← Back to blog
-                </Link>
-
-                <Button href={siteRoutes.contact} variant="secondary" size="sm">
-                  Get in touch
-                </Button>
-              </div>
+                  {tag}
+                </span>
+              ))}
             </div>
+          )}
+
+          <h1
+            style={{
+              fontSize: "var(--text-2xl)",
+              fontWeight: 800,
+              lineHeight: 1.08,
+              color: "var(--text-strong)",
+              fontFamily: "var(--font-display), sans-serif",
+              marginBottom: "var(--space-4)",
+            }}
+          >
+            {post.title}
+          </h1>
+
+          {post.description && (
+            <p
+              style={{
+                fontSize: "var(--text-lg)",
+                color: "var(--text-soft)",
+                lineHeight: 1.55,
+                marginBottom: "var(--space-4)",
+              }}
+            >
+              {post.description}
+            </p>
+          )}
+
+          <time
+            dateTime={post.publishedDate}
+            style={{
+              fontSize: "var(--text-xs)",
+              color: "var(--text-soft)",
+              fontWeight: 600,
+            }}
+          >
+            {date}
+          </time>
+        </header>
+
+        {/* Featured image */}
+        {imageUrl && (
+          <div
+            style={{
+              position: "relative",
+              width: "100%",
+              maxWidth: 900,
+              aspectRatio: "16 / 9",
+              borderRadius: "var(--radius-md)",
+              overflow: "hidden",
+              marginBottom: "var(--space-7)",
+              background: "var(--surface-soft)",
+            }}
+          >
+            <Image
+              src={resolveImageUrl(imageUrl)}
+              alt={imageAlt}
+              fill
+              priority
+              sizes="(max-width: 900px) 100vw, 900px"
+              style={{ objectFit: "cover" }}
+            />
           </div>
-        </Container>
-      </Section>
+        )}
+
+        {/* Content */}
+        <div style={{ maxWidth: 760 }}>
+          <MarkdownRenderer content={post.content} />
+        </div>
+
+        {/* Related posts */}
+        {relatedPosts.length > 0 && (
+          <section style={{ marginTop: "var(--space-9)", maxWidth: 900 }}>
+            <h2
+              style={{
+                fontSize: "var(--text-xl)",
+                fontWeight: 700,
+                color: "var(--text-strong)",
+                fontFamily: "var(--font-display), sans-serif",
+                marginBottom: "var(--space-5)",
+              }}
+            >
+              Related posts
+            </h2>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gap: "var(--space-5)",
+              }}
+            >
+              {relatedPosts.map((rp, i) => (
+                <PostCard key={rp.id} post={rp} index={i} basePath="/blog" />
+              ))}
+            </div>
+          </section>
+        )}
+      </article>
+      <Footer />
     </>
   );
 }

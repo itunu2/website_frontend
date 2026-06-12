@@ -1,104 +1,80 @@
-import { Container } from "@/components/layout/container";
-import { Section } from "@/components/layout/section";
-import { PostCard } from "@/components/blog/post-card";
-import { TagFilter } from "@/components/blog/tag-filter";
-import { Pagination } from "@/components/ui/pagination";
+import { Suspense } from "react";
+import type { Metadata } from "next";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { getPortfolioPosts, getAvailableTags } from "@/lib/strapi/blog";
 import { PORTFOLIO_TAGS } from "@/lib/strapi/types";
-import type { Metadata } from "next";
+import BlogListingContent from "@/app/blog/BlogListingContent";
 
 export const metadata: Metadata = {
-  title: "Writing",
-  description: "Selected works across essays, brand stories, and editorial features by Itunu Adegbayi.",
+  title: "Writing Samples — Itunu Adegbayi",
+  description:
+    "A curated collection of B2B SaaS content, brand stories, case studies, and editorial work.",
 };
 
-interface WritingPageProps {
-  searchParams: Promise<{ page?: string; tag?: string }>;
-}
-
-export default async function WritingPage({ searchParams }: WritingPageProps) {
+export default async function WritingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string; page?: string }>;
+}) {
   const params = await searchParams;
-  const currentPage = Number(params.page) || 1;
   const currentTag = params.tag;
+  const currentPage = Number(params.page) || 1;
 
-  // Fetch portfolio posts with pagination
-  const { posts, meta } = await getPortfolioPosts({
-    page: currentPage,
-    pageSize: 11, // 1 featured + 10 regular posts
-    tag: currentTag,
-  });
+  const [{ posts, meta }, allTags] = await Promise.all([
+    getPortfolioPosts({ page: currentPage, pageSize: 12, tag: currentTag }),
+    getAvailableTags(),
+  ]);
 
-  // Get all available tags for filtering, filtered to portfolio tags
-  const allTags = await getAvailableTags();
   const portfolioTags = allTags.filter((tag) =>
-    PORTFOLIO_TAGS.some((pt) => pt.toLowerCase() === tag.toLowerCase())
+    PORTFOLIO_TAGS.some((pt) => pt.toLowerCase() === tag.toLowerCase()),
   );
-
-  // Split posts into featured and regular
-  const featuredPost = currentPage === 1 && posts.length > 0 ? posts[0] : null;
-  const regularPosts = currentPage === 1 && posts.length > 0 ? posts.slice(1) : posts;
 
   return (
     <>
-      {/* Hero */}
-      <Section className="bg-bg-elevated pt-16 pb-12 sm:pt-20 sm:pb-16 md:pt-32 md:pb-20">
-        <Container>
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="mb-4 text-body-sm font-semibold uppercase tracking-[0.4em] text-accent-primary">
-              Portfolio
-            </p>
-            <h1 className="mb-6 font-display text-display leading-tight text-text-primary">
-              Selected Writing
-            </h1>
-            <p className="text-body-lg leading-relaxed text-text-secondary">
-              Essays, brand stories, and editorial features exploring culture, strategy, and the human
-              side of work.
-            </p>
-          </div>
-        </Container>
-      </Section>
+      <Navbar />
+      <main className="section-wrap section-block">
+        <header style={{ marginBottom: "var(--space-7)" }}>
+          <span className="kicker" style={{ marginBottom: "var(--space-3)", display: "block" }}>
+            Portfolio
+          </span>
+          <h1
+            style={{
+              fontSize: "var(--text-2xl)",
+              fontWeight: 800,
+              lineHeight: 1.08,
+              color: "var(--text-strong)",
+              fontFamily: "var(--font-display), sans-serif",
+              maxWidth: 600,
+            }}
+          >
+            Writing that works
+          </h1>
+          <p
+            style={{
+              fontSize: "var(--text-base)",
+              color: "var(--text-soft)",
+              marginTop: "var(--space-4)",
+              maxWidth: "58ch",
+              lineHeight: 1.7,
+            }}
+          >
+            A curated collection of B2B SaaS content, brand stories, case
+            studies, and editorial work I&apos;ve done for clients.
+          </p>
+        </header>
 
-      {/* Featured Post Section - Only on first page */}
-      {featuredPost && currentPage === 1 && (
-        <Section className="bg-bg-page pt-16 pb-8">
-          <Container size="lg">
-            <PostCard post={featuredPost} variant="featured" showLabel="Featured Work" />
-          </Container>
-        </Section>
-      )}
-
-      {/* Portfolio Grid */}
-      <Section className="bg-bg-page">
-        <Container>
-          {/* Tag Filter */}
-          {portfolioTags.length > 0 && <TagFilter tags={portfolioTags} currentTag={currentTag} />}
-
-          {regularPosts.length > 0 ? (
-            <>
-              <div className="-mx-4 grid gap-4 sm:mx-0 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-                {regularPosts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              <Pagination
-                currentPage={meta.pagination.page}
-                totalPages={meta.pagination.pageCount}
-                totalItems={meta.pagination.total}
-              />
-            </>
-          ) : posts.length === 0 ? (
-            <div className="mx-auto max-w-2xl py-12 text-center">
-              <p className="text-body-lg text-text-secondary">
-                {currentTag
-                  ? `No writing found with the tag "${currentTag}". Try a different filter.`
-                  : "New writing coming soon. Check back for essays, stories, and editorial features."}
-              </p>
-            </div>
-          ) : null}
-        </Container>
-      </Section>
+        <Suspense fallback={null}>
+          <BlogListingContent
+            posts={posts}
+            meta={meta}
+            tags={portfolioTags}
+            activeTag={currentTag}
+            basePath="/writing"
+          />
+        </Suspense>
+      </main>
+      <Footer />
     </>
   );
 }

@@ -1,3 +1,7 @@
+/* Strapi response types & tag-based content routing */
+
+// ── Strapi API response shapes ──
+
 export interface StrapiPaginationMeta {
   pagination: {
     page: number;
@@ -7,13 +11,15 @@ export interface StrapiPaginationMeta {
   };
 }
 
+// Strapi v5 can return either nested ({ id, attributes: { ... } }) or flat ({ id, title, ... })
+// depending on whether the controller uses Entity Service or raw db.query.
 export interface StrapiCollectionResponse<T> {
-  data: Array<{ id: number; attributes: T }>;
+  data: Array<{ id: number; attributes?: T } & Partial<T>>;
   meta: StrapiPaginationMeta;
 }
 
 export interface StrapiSingleResponse<T> {
-  data: { id: number; attributes: T } | null;
+  data: ({ id: number; attributes?: T } & Partial<T>) | null;
   meta?: Record<string, unknown>;
 }
 
@@ -43,11 +49,9 @@ export interface BlogPostAttributes {
   status: "draft" | "published";
   publishedDate: string;
   isFeatured?: boolean;
+  // Normalized form (after transform). Raw Strapi v5 may return flat or nested.
   featuredImage?: {
-    data: {
-      id: number;
-      attributes: StrapiImageAttributes;
-    } | null;
+    data: { id: number; attributes: StrapiImageAttributes } | null;
   };
   createdAt: string;
   updatedAt: string;
@@ -58,27 +62,26 @@ export interface BlogPost extends BlogPostAttributes {
   id: number;
 }
 
-// Tag conventions for content categorization
-export const BLOG_TAGS = ["essay", "thoughts", "journal", "personal", "reflection", "opinion"] as const;
+// ── Tag-based content routing ──
+// Blog and portfolio share the same Strapi content type (`blog-posts`).
+// They are separated by tag conventions.
+
+export const BLOG_TAGS = [
+  "essay", "thoughts", "journal", "personal", "reflection", "opinion",
+] as const;
+
 export const PORTFOLIO_TAGS = [
-  "portfolio",
-  "commission",
-  "brand-story",
-  "editorial",
-  "case-study",
-  "featured-work",
-  "client-work",
+  "portfolio", "commission", "brand-story", "editorial",
+  "case-study", "featured-work", "client-work",
 ] as const;
 
 export type BlogTag = (typeof BLOG_TAGS)[number];
 export type PortfolioTag = (typeof PORTFOLIO_TAGS)[number];
 
-// Helper to determine if a post has blog or portfolio tags
 export const hasAnyTag = (post: BlogPost, tags: readonly string[]): boolean => {
-  if (!post.tags || !Array.isArray(post.tags)) {
-    return false;
-  }
-  return post.tags.some((tag) => tags.some((t) => t.toLowerCase() === tag.toLowerCase()));
+  if (!Array.isArray(post.tags)) return false;
+  const lowerTags = tags.map((t) => t.toLowerCase());
+  return post.tags.some((tag) => lowerTags.includes(tag.toLowerCase()));
 };
 
 export const isBlogPost = (post: BlogPost): boolean => hasAnyTag(post, BLOG_TAGS);
