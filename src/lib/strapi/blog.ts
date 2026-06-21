@@ -1,99 +1,117 @@
 import { env } from "@/config/env";
 import { strapiFetch } from "@/lib/strapi/client";
-import {
-  isBlogPost,
-  isPortfolioPost,
-  type BlogPost,
-  type BlogPostAttributes,
-  type StrapiCollectionResponse,
-  type StrapiPaginationMeta,
-  type StrapiSingleResponse,
+import type {
+  BlogPost,
+  BlogPostAttributes,
+  StrapiCollectionResponse,
+  StrapiPaginationMeta,
+  StrapiSingleResponse,
 } from "@/lib/strapi/types";
+import { isBlogPost, isPortfolioPost } from "@/lib/strapi/types";
 
-const transformBlogPost = (entry: { id: number; attributes?: BlogPostAttributes | null } & Partial<BlogPostAttributes>): BlogPost => {
-  const attributes = entry.attributes ?? undefined;
+// ── Transform ──
 
-  const resolveField = <T>(field: keyof BlogPostAttributes, fallback: T): T => {
-    if (attributes && field in attributes && attributes[field] !== undefined) {
-      return attributes[field] as unknown as T;
-    }
-    if (field in entry && entry[field] !== undefined) {
-      return entry[field] as unknown as T;
-    }
+function resolveImageUrl(url: string): string {
+  return url.startsWith("http")
+    ? url
+    : `${env.client.NEXT_PUBLIC_STRAPI_BASE_URL}${url}`;
+}
+
+function transformBlogPost(
+  entry: { id: number; attributes?: BlogPostAttributes | null } & Partial<BlogPostAttributes>,
+): BlogPost {
+  const a = entry.attributes;
+  const get = <T>(key: keyof BlogPostAttributes, fallback: T): T => {
+    const fromAttr = a?.[key];
+    if (fromAttr !== undefined) return fromAttr as unknown as T;
+    const fromEntry = (entry as Record<string, unknown>)[key];
+    if (fromEntry !== undefined) return fromEntry as unknown as T;
     return fallback;
   };
 
-  const tagsSource = resolveField<unknown>("tags", []);
-  const rawFeaturedImage = resolveField<unknown>("featuredImage", undefined);
-
-  // Normalize featuredImage: handle both flat and nested structures
-  let featuredImage: BlogPostAttributes["featuredImage"] = undefined;
-  if (rawFeaturedImage && typeof rawFeaturedImage === "object") {
-    const imageObj = rawFeaturedImage as Record<string, unknown>;
-    
-    // Check if already in { data: { attributes } } format
-    if ("data" in imageObj) {
-      featuredImage = imageObj as BlogPostAttributes["featuredImage"];
-    } 
-    // Check if it's a flat structure with url field (from db.query)
-    else if ("url" in imageObj) {
-      const baseUrl = imageObj.url as string;
-      const fullUrl = baseUrl.startsWith('http') ? baseUrl : `${env.client.NEXT_PUBLIC_STRAPI_BASE_URL}${baseUrl}`;
-      
-      const processFormats = (formats: unknown) => {
-        if (!formats || typeof formats !== 'object') return undefined;
-        const result: Record<string, { url: string; width?: number; height?: number; name?: string }> = {};
-        for (const [key, value] of Object.entries(formats)) {
-          if (value && typeof value === 'object' && 'url' in value) {
-            const formatUrl = (value as { url: string }).url;
-            result[key] = {
-              ...(value as object),
-              url: formatUrl.startsWith('http') ? formatUrl : `${env.client.NEXT_PUBLIC_STRAPI_BASE_URL}${formatUrl}`,
-            } as { url: string; width?: number; height?: number; name?: string };
-          }
-        }
-        return result;
-      };
-      
+  // Normalize featured image from either nested or flat shape (Strapi v5 inconsistency)
+  let featuredImage: BlogPostAttributes["featuredImage"];
+  const raw = get<unknown>("featuredImage", undefined);
+  if (raw && typeof raw === "object") {
+    const obj = raw as Record<string, unknown>;
+    if ("data" in obj && obj.data && typeof obj.data === "object") {
+      // Nested: { data: { id, attributes: { url, ... } } } OR { data: { id, url, ... } }
+      const d = obj.data as Record<string, unknown>;
+      if ("attributes" in d && d.attributes && typeof d.attributes === "object") {
+        // Fully nested v4-style
+        const attrs = d.attributes as Record<string, unknown>;
+        featuredImage = {
+          data: {
+            id: (d.id as number) ?? 0,
+            attributes: {
+              url: resolveImageUrl(attrs.url as string),
+              alternativeText: (attrs.alternativeText as string | null) ?? null,
+              caption: (attrs.caption as string | null) ?? null,
+              width: attrs.width as number | undefined,
+              height: attrs.height as number | undefined,
+            },
+          },
+        };
+      } else if ("url" in d) {
+        // data exists but is flat: { data: { id, url, ... } }
+        featuredImage = {
+          data: {
+            id: (d.id as number) ?? 0,
+            attributes: {
+              url: resolveImageUrl(d.url as string),
+              alternativeText: (d.alternativeText as string | null) ?? null,
+              caption: (d.caption as string | null) ?? null,
+              width: d.width as number | undefined,
+              height: d.height as number | undefined,
+            },
+          },
+        };
+      }
+    } else if ("url" in obj) {
+      // Completely flat: { id, url, alternativeText, ... }
       featuredImage = {
         data: {
-          id: (imageObj.id as number) ?? 0,
+          id: (obj.id as number) ?? 0,
           attributes: {
-            url: fullUrl,
-            alternativeText: (imageObj.alternativeText as string | null) ?? null,
-            caption: (imageObj.caption as string | null) ?? null,
-            width: imageObj.width as number | undefined,
-            height: imageObj.height as number | undefined,
-            formats: processFormats(imageObj.formats),
+            url: resolveImageUrl(obj.url as string),
+            alternativeText: (obj.alternativeText as string | null) ?? null,
+            caption: (obj.caption as string | null) ?? null,
+            width: obj.width as number | undefined,
+            height: obj.height as number | undefined,
           },
         },
       };
     }
   }
 
+  const tagsRaw = get<unknown>("tags", []);
+
   return {
     id: entry.id,
-    documentId: resolveField<string>("documentId", ""),
-    title: resolveField<string>("title", ""),
-    slug: resolveField<string>("slug", ""),
-    description: resolveField<string>("description", ""),
-    content: resolveField<string>("content", ""),
-    tags: Array.isArray(tagsSource) ? (tagsSource as string[]) : [],
-    status: resolveField<"draft" | "published">("status", "draft"),
-    publishedDate: resolveField<string>("publishedDate", new Date(0).toISOString()),
-    isFeatured: resolveField<boolean>("isFeatured", false),
+    documentId: get("documentId", ""),
+    title: get("title", ""),
+    slug: get("slug", ""),
+    description: get("description", ""),
+    content: get("content", ""),
+    tags: Array.isArray(tagsRaw) ? (tagsRaw as string[]) : [],
+    status: get("status", "draft"),
+    publishedDate: get("publishedDate", new Date(0).toISOString()),
+    isFeatured: get("isFeatured", false),
     featuredImage,
-    createdAt: resolveField<string>("createdAt", new Date(0).toISOString()),
-    updatedAt: resolveField<string>("updatedAt", new Date(0).toISOString()),
-    publishedAt: resolveField<string | undefined>("publishedAt", undefined),
-  } satisfies BlogPost;
-};
+    createdAt: get("createdAt", new Date(0).toISOString()),
+    updatedAt: get("updatedAt", new Date(0).toISOString()),
+    publishedAt: get("publishedAt", undefined),
+  };
+}
+
+// ── Params & helpers ──
 
 export interface BlogListParams {
   page?: number;
   pageSize?: number;
   tag?: string;
   featured?: boolean;
+  q?: string;
 }
 
 export interface BlogListResponse {
@@ -101,16 +119,15 @@ export interface BlogListResponse {
   meta: StrapiPaginationMeta;
 }
 
-const fallbackMeta = (page: number, pageSize: number): StrapiPaginationMeta => ({
-  pagination: {
-    page,
-    pageSize,
-    pageCount: 0,
-    total: 0,
-  },
+const emptyMeta = (page: number, pageSize: number): StrapiPaginationMeta => ({
+  pagination: { page, pageSize, pageCount: 0, total: 0 },
 });
 
-export const getBlogPosts = async (params: BlogListParams = {}): Promise<BlogListResponse> => {
+const revalidate = env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS;
+
+// ── Public API ──
+
+export async function getBlogPosts(params: BlogListParams = {}): Promise<BlogListResponse> {
   const page = params.page ?? 1;
   const pageSize = params.pageSize ?? env.client.NEXT_PUBLIC_DEFAULT_PAGE_SIZE;
 
@@ -121,196 +138,122 @@ export const getBlogPosts = async (params: BlogListParams = {}): Promise<BlogLis
     populate: "featuredImage",
     "filters[status][$eq]": "published",
   };
-
-  if (params.tag) {
-    query["filters[tags][$containsi]"] = params.tag;
-  }
-
-  if (typeof params.featured === "boolean") {
-    query["filters[isFeatured][$eq]"] = params.featured;
-  }
+  if (params.tag) query["filters[tags][$containsi]"] = params.tag;
+  if (typeof params.featured === "boolean") query["filters[isFeatured][$eq]"] = params.featured;
 
   try {
-    const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
-      query,
-      cache: "force-cache",
-      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-    });
-
-    return {
-      posts: response.data.map(transformBlogPost),
-      meta: response.meta,
-    };
-  } catch (error) {
-    console.error("getBlogPosts fallback activated", error);
-    return {
-      posts: [],
-      meta: fallbackMeta(page, pageSize),
-    };
-  }
-};
-
-export const getBlogPostBySlug = async (slug: string): Promise<BlogPost | null> => {
-  if (!slug) return null;
-
-  try {
-    const response = await strapiFetch<StrapiSingleResponse<BlogPostAttributes>>(
-      `/api/blog-posts/slug/${encodeURIComponent(slug)}`,
-      {
-        cache: "force-cache",
-        revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-        query: { populate: "featuredImage" },
-      },
+    const res = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>(
+      "/api/blog-posts",
+      { query, cache: "force-cache", revalidate },
     );
+    return { posts: res.data.map(transformBlogPost), meta: res.meta };
+  } catch (err) {
+    console.error("[strapi] getBlogPosts failed:", err);
+    return { posts: [], meta: emptyMeta(page, pageSize) };
+  }
+}
 
-    if (!response.data) {
-      return null;
-    }
-
-    return transformBlogPost(response.data);
-  } catch (error) {
-    console.error("getBlogPostBySlug fallback activated", { slug, error });
+export async function getBlogPostBySlug(slug: string): Promise<BlogPost | null> {
+  if (!slug) return null;
+  try {
+    const res = await strapiFetch<StrapiSingleResponse<BlogPostAttributes>>(
+      `/api/blog-posts/slug/${encodeURIComponent(slug)}`,
+      { query: { populate: "featuredImage" }, cache: "force-cache", revalidate },
+    );
+    return res.data ? transformBlogPost(res.data) : null;
+  } catch (err) {
+    console.error("[strapi] getBlogPostBySlug failed:", { slug, err });
     return null;
   }
-};
+}
 
-export const getAvailableTags = async (): Promise<string[]> => {
+export async function getPortfolioPosts(
+  params: Omit<BlogListParams, "featured"> = {},
+): Promise<BlogListResponse> {
+  const page = params.page ?? 1;
+  const pageSize = params.pageSize ?? env.client.NEXT_PUBLIC_DEFAULT_PAGE_SIZE;
+
+  const query: Record<string, string | number | boolean> = {
+    "pagination[page]": page,
+    "pagination[pageSize]": pageSize,
+    "sort[0]": "publishedDate:desc",
+    populate: "featuredImage",
+    "filters[status][$eq]": "published",
+  };
+  if (params.tag) query["filters[tags][$containsi]"] = params.tag;
+  if (params.q) query["_q"] = params.q;
+
+  try {
+    const res = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>(
+      "/api/blog-posts",
+      { query, cache: "no-store", revalidate },
+    );
+    const all = res.data.map(transformBlogPost);
+    // Portfolio page: tag filter narrows to portfolio-tagged posts; no filter shows everything
+    const posts = params.tag ? all.filter((p) => isPortfolioPost(p)) : all;
+    return { posts, meta: res.meta };
+  } catch (err) {
+    console.error("[strapi] getPortfolioPosts failed:", err);
+    return { posts: [], meta: emptyMeta(page, pageSize) };
+  }
+}
+
+export async function getBlogPostsOnly(
+  params: Omit<BlogListParams, "featured"> = {},
+): Promise<BlogListResponse> {
+  const page = params.page ?? 1;
+  const pageSize = params.pageSize ?? env.client.NEXT_PUBLIC_DEFAULT_PAGE_SIZE;
+
+  const query: Record<string, string | number | boolean> = {
+    "pagination[page]": page,
+    "pagination[pageSize]": pageSize,
+    "sort[0]": "publishedDate:desc",
+    populate: "featuredImage",
+    "filters[status][$eq]": "published",
+  };
+  if (params.tag) query["filters[tags][$containsi]"] = params.tag;
+  if (params.q) query["_q"] = params.q;
+
+  try {
+    const res = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>(
+      "/api/blog-posts",
+      { query, cache: params.q ? "no-store" : "force-cache", revalidate },
+    );
+    const all = res.data.map(transformBlogPost);
+    const posts = params.tag
+      ? all
+      : all.filter((p) => isBlogPost(p) || !isPortfolioPost(p));
+    return { posts, meta: res.meta };
+  } catch (err) {
+    console.error("[strapi] getBlogPostsOnly failed:", err);
+    return { posts: [], meta: emptyMeta(page, pageSize) };
+  }
+}
+
+export async function getAvailableTags(): Promise<string[]> {
   const { posts } = await getBlogPosts({ page: 1, pageSize: 100 });
-  return Array.from(new Set(posts.flatMap((post) => post.tags))).sort((a, b) => a.localeCompare(b));
-};
+  return Array.from(new Set(posts.flatMap((p) => p.tags))).sort((a, b) =>
+    a.localeCompare(b),
+  );
+}
 
-/**
- * Fetch portfolio/writing posts (filtered by portfolio tags on the client side)
- * These posts represent commissioned work, brand stories, and editorial features
- */
-export const getPortfolioPosts = async (params: Omit<BlogListParams, "featured"> = {}): Promise<BlogListResponse> => {
-  const page = params.page ?? 1;
-  const pageSize = params.pageSize ?? env.client.NEXT_PUBLIC_DEFAULT_PAGE_SIZE;
-
-  // Fetch all published posts
-  const query: Record<string, string | number | boolean> = {
-    "pagination[page]": page,
-    "pagination[pageSize]": pageSize,
-    "sort[0]": "publishedDate:desc",
-    populate: "featuredImage",
-    "filters[status][$eq]": "published",
-  };
-
-  // If a specific tag is provided, use backend filtering
-  if (params.tag) {
-    query["filters[tags][$containsi]"] = params.tag;
-  }
-
-  try {
-    const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
-      query,
-      cache: "force-cache",
-      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-    });
-
-    const allPosts = response.data.map(transformBlogPost);
-
-    const posts = params.tag
-      ? allPosts
-      : allPosts.filter((post) => {
-          if (isPortfolioPost(post) || post.isFeatured) {
-            return true;
-          }
-          const hasTags = Array.isArray(post.tags) && post.tags.length > 0;
-          return !hasTags;
-        });
-
-    return {
-      posts,
-      meta: response.meta,
-    };
-  } catch (error) {
-    console.error("getPortfolioPosts fallback activated", error);
-    return {
-      posts: [],
-      meta: fallbackMeta(page, pageSize),
-    };
-  }
-};
-
-/**
- * Fetch blog/journal posts (filtered by blog tags on the client side)
- * These posts represent personal essays, thoughts, and reflections
- */
-export const getBlogPostsOnly = async (params: Omit<BlogListParams, "featured"> = {}): Promise<BlogListResponse> => {
-  const page = params.page ?? 1;
-  const pageSize = params.pageSize ?? env.client.NEXT_PUBLIC_DEFAULT_PAGE_SIZE;
-
-  const query: Record<string, string | number | boolean> = {
-    "pagination[page]": page,
-    "pagination[pageSize]": pageSize,
-    "sort[0]": "publishedDate:desc",
-    populate: "featuredImage",
-    "filters[status][$eq]": "published",
-  };
-
-  // If a specific tag is provided, use backend filtering
-  if (params.tag) {
-    query["filters[tags][$containsi]"] = params.tag;
-  }
-
-  try {
-    const response = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>("/api/blog-posts", {
-      query,
-      cache: "force-cache",
-      revalidate: env.client.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
-    });
-
-    const allPosts = response.data.map(transformBlogPost);
-
-    const posts = params.tag
-      ? allPosts
-      : allPosts.filter((post) => {
-          if (isBlogPost(post)) {
-            return true;
-          }
-          if (isPortfolioPost(post)) {
-            return false;
-          }
-          return true;
-        });
-
-    return {
-      posts,
-      meta: response.meta,
-    };
-  } catch (error) {
-    console.error("getBlogPostsOnly fallback activated", error);
-    return {
-      posts: [],
-      meta: fallbackMeta(page, pageSize),
-    };
-  }
-};
-
-/**
- * Fetch related posts based on shared tags
- */
-export const getRelatedPosts = async (currentPost: BlogPost, limit = 3): Promise<BlogPost[]> => {
-  if (!currentPost.tags || !Array.isArray(currentPost.tags) || currentPost.tags.length === 0) {
-    return [];
-  }
-
+export async function getRelatedPosts(
+  currentPost: BlogPost,
+  limit = 3,
+): Promise<BlogPost[]> {
+  if (!currentPost.tags?.length) return [];
   try {
     const { posts } = await getBlogPosts({ pageSize: 20 });
-
     return posts
-      .filter((post) => {
-        if (post.id === currentPost.id) return false;
-        if (!post.tags || !Array.isArray(post.tags)) return false;
-
-        return post.tags.some((tag) =>
-          currentPost.tags.some((currentTag) => currentTag.toLowerCase() === tag.toLowerCase())
-        );
-      })
+      .filter(
+        (p) =>
+          p.id !== currentPost.id &&
+          p.tags?.some((t) =>
+            currentPost.tags.some((ct) => ct.toLowerCase() === t.toLowerCase()),
+          ),
+      )
       .slice(0, limit);
-  } catch (error) {
-    console.error("getRelatedPosts fallback activated", error);
+  } catch {
     return [];
   }
-};
+}

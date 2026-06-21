@@ -1,83 +1,70 @@
 import { z } from "zod";
 
+/* ── Client env (parsed eagerly, safe for browser) ── */
+
 const clientSchema = z.object({
-  NEXT_PUBLIC_SITE_URL: z
-    .string()
-    .url({ message: "NEXT_PUBLIC_SITE_URL must be a valid URL" })
-    .default("http://localhost:3000"),
-  NEXT_PUBLIC_STRAPI_BASE_URL: z
-    .string()
-    .url({ message: "NEXT_PUBLIC_STRAPI_BASE_URL must be a valid URL" })
-    .default("http://127.0.0.1:1337"),
-  NEXT_PUBLIC_REQUEST_ID_HEADER: z
-    .string()
-    .min(1, "NEXT_PUBLIC_REQUEST_ID_HEADER cannot be empty")
-    .default("X-Request-ID"),
-  NEXT_PUBLIC_DEFAULT_PAGE_SIZE: z
-    .coerce.number()
-    .int()
-    .min(1)
-    .max(50)
-    .default(6),
-  NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS: z
-    .coerce.number()
-    .int()
-    .min(0)
-    .max(3600)
-    .default(60),
+  NEXT_PUBLIC_SITE_URL: z.string().url().default("http://localhost:3000"),
+  NEXT_PUBLIC_STRAPI_BASE_URL: z.string().url().default("http://127.0.0.1:1337"),
+  NEXT_PUBLIC_DEFAULT_PAGE_SIZE: z.coerce.number().int().min(1).max(50).default(6),
+  NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS: z.coerce.number().int().min(0).max(3600).default(60),
 });
 
-const serverSchema = z.object({
-  STRAPI_BLOG_API_TOKEN: z.string().min(1).optional(),
-  SUPABASE_URL: z.string().url({ message: "SUPABASE_URL must be a valid URL" }).optional(),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1).optional(),
-  NEWSLETTER_ADMIN_TOKEN: z.string().min(1).optional(),
-  NEWSLETTER_WEBHOOK_SECRET: z.string().min(1).optional(),
-  NEWSLETTER_RATE_LIMIT_PER_HOUR: z.coerce.number().int().min(1).max(100).default(3),
-});
-
-type ClientEnv = z.infer<typeof clientSchema>;
-type ServerEnv = z.infer<typeof serverSchema>;
-
-const parse = <T>(schema: z.ZodTypeAny, input: Record<string, unknown>): T => {
-  const result = schema.safeParse(input);
-  if (!result.success) {
-    const errorMessages = result.error.issues
-      .map((issue: z.ZodIssue) => `${issue.path.join(".") || ""}${issue.message ? `: ${issue.message}` : ""}`)
-      .join("\n");
-    throw new Error(`Invalid environment configuration:\n${errorMessages}`);
-  }
-  return result.data as T;
-};
-
-const clientEnv = parse<ClientEnv>(clientSchema, {
+const clientResult = clientSchema.safeParse({
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
   NEXT_PUBLIC_STRAPI_BASE_URL: process.env.NEXT_PUBLIC_STRAPI_BASE_URL,
-  NEXT_PUBLIC_REQUEST_ID_HEADER: process.env.NEXT_PUBLIC_REQUEST_ID_HEADER,
   NEXT_PUBLIC_DEFAULT_PAGE_SIZE: process.env.NEXT_PUBLIC_DEFAULT_PAGE_SIZE,
   NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS: process.env.NEXT_PUBLIC_STRAPI_REVALIDATE_SECONDS,
 });
 
-let serverEnv: ServerEnv | null = null;
+if (!clientResult.success) {
+  throw new Error(
+    `Invalid client env:\n${clientResult.error.issues.map((i) => `  ${i.path}: ${i.message}`).join("\n")}`,
+  );
+}
+
+/* ── Server env (parsed lazily on first access — never runs in browser) ── */
+
+const serverSchema = z.object({
+  STRAPI_BLOG_API_TOKEN: z.string().optional().default(""),
+  SUPABASE_URL: z.string().url("SUPABASE_URL must be a valid URL"),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().min(1, "SUPABASE_SERVICE_ROLE_KEY is required"),
+  NEWSLETTER_ADMIN_TOKEN: z.string().min(1).optional(),
+  NEWSLETTER_WEBHOOK_SECRET: z.string().min(1).optional(),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  RESEND_AUDIENCE_ID: z.string().optional(), // Deprecated — Resend moved to global contacts in 2025
+  CONTACT_EMAIL_TO: z.string().email().optional(),
+});
+
+type ServerEnv = z.infer<typeof serverSchema>;
+let _server: ServerEnv | null = null;
 
 export const env = {
-  client: clientEnv,
+  client: clientResult.data,
+
   get server(): ServerEnv {
     if (typeof window !== "undefined") {
-      throw new Error("Attempted to access server environment variables on the client");
+      throw new Error("Server env accessed on the client");
     }
-
-    if (!serverEnv) {
-      serverEnv = parse<ServerEnv>(serverSchema, {
+    if (!_server) {
+      const result = serverSchema.safeParse({
         STRAPI_BLOG_API_TOKEN: process.env.STRAPI_BLOG_API_TOKEN,
         SUPABASE_URL: process.env.SUPABASE_URL,
         SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
         NEWSLETTER_ADMIN_TOKEN: process.env.NEWSLETTER_ADMIN_TOKEN,
         NEWSLETTER_WEBHOOK_SECRET: process.env.NEWSLETTER_WEBHOOK_SECRET,
-        NEWSLETTER_RATE_LIMIT_PER_HOUR: process.env.NEWSLETTER_RATE_LIMIT_PER_HOUR,
+        RESEND_API_KEY: process.env.RESEND_API_KEY,
+        CONTACT_EMAIL_TO: process.env.CONTACT_EMAIL_TO,
       });
+      if (!result.success) {
+        console.warn(
+          `[env] Server env validation warnings:\n${result.error.issues.map((i) => `  ${i.path}: ${i.message}`).join("\n")}`,
+        );
+        // Return partial — individual services will throw clear errors when their required vars are missing
+        _server = result.data as unknown as ServerEnv;
+      } else {
+        _server = result.data;
+      }
     }
-
-    return serverEnv;
+    return _server;
   },
 };

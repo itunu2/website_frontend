@@ -1,18 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
-import { env } from "@/config/env";
 
 export const createServerSupabaseClient = () => {
-  const supabaseUrl = env.server.SUPABASE_URL;
-  const supabaseServiceRoleKey = env.server.SUPABASE_SERVICE_ROLE_KEY;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY for newsletter subscription API");
+  if (!url || !key) {
+    throw new Error(
+      "Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY. " +
+        "Set these in your .env.local to enable newsletter + contact form features.",
+    );
   }
 
-  return createClient(supabaseUrl, supabaseServiceRoleKey, {
-    auth: {
-      persistSession: false,
-      autoRefreshToken: false,
-    },
+  return createClient(url, key, {
+    auth: { persistSession: false, autoRefreshToken: false },
   });
 };

@@ -1,131 +1,100 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { env } from "@/config/env";
 import { newsletterSourceSchema } from "@/lib/newsletter/types";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { Resend } from "resend";
 
-const subscribeBodySchema = z.object({
+const bodySchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   source: newsletterSourceSchema,
 });
 
-const WINDOW_MS = 60 * 60 * 1000;
+async function saveToSupabase(email: string, source: string): Promise<void> {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return;
 
-const rateLimitBuckets = new Map<string, { count: number; resetAt: number }>();
+  const { createServerSupabaseClient } = await import("@/lib/supabase/server");
+  const supabase = createServerSupabaseClient();
 
-const getClientIp = (request: NextRequest) => {
-  const forwardedFor = request.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]?.trim() || "unknown";
-  }
+  const { error } = await supabase
+    .from("newsletter_subscribers")
+    .upsert(
+      { email, source, status: "active", subscribed_at: new Date().toISOString() },
+      { onConflict: "email" },
+    );
 
-  return request.headers.get("x-real-ip") ?? "unknown";
-};
+  if (error) console.error("[subscribe] supabase upsert failed:", error.message);
+}
 
-const isRateLimited = (ipAddress: string, limitPerHour: number) => {
-  const now = Date.now();
-  const current = rateLimitBuckets.get(ipAddress);
+async function saveToResend(email: string): Promise<void> {
+  const resendKey = process.env.RESEND_API_KEY;
+  if (!resendKey) return;
 
-  if (!current || now >= current.resetAt) {
-    rateLimitBuckets.set(ipAddress, {
-      count: 1,
-      resetAt: now + WINDOW_MS,
-    });
-    return false;
-  }
+  const resend = new Resend(resendKey);
+  // Resend moved to global contacts in 2025 — no audienceId needed
+  const result = await resend.contacts.create({ email, unsubscribed: false });
+  if (result.error) console.error("[subscribe] resend contacts failed:", result.error.message);
+}
 
-  if (current.count >= limitPerHour) {
-    return true;
-  }
+async function isRateLimited(email: string): Promise<boolean> {
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return false;
 
-  current.count += 1;
-  rateLimitBuckets.set(ipAddress, current);
-  return false;
-};
+  const { createServerSupabaseClient } = await import("@/lib/supabase/server");
+  const supabase = createServerSupabaseClient();
 
-const normalizeEmail = (email: string) => email.trim().toLowerCase();
+  const windowStart = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count } = await supabase
+    .from("newsletter_subscribers")
+    .select("*", { count: "exact", head: true })
+    .eq("email", email)
+    .gte("updated_at", windowStart);
+
+  return count !== null && count >= 3;
+}
 
 export async function POST(request: NextRequest) {
-  const requestBody = await request.json().catch(() => null);
-  const parsedBody = subscribeBodySchema.safeParse(requestBody);
+  const raw = await request.json().catch(() => null);
+  const parsed = bodySchema.safeParse(raw);
 
-  if (!parsedBody.success) {
+  if (!parsed.success) {
     return NextResponse.json(
-      {
-        success: false,
-        error: parsedBody.error.issues[0]?.message ?? "Invalid request body",
-      },
+      { success: false, error: parsed.error.issues[0]?.message ?? "Invalid request" },
       { status: 400 },
     );
   }
 
-  const ipAddress = getClientIp(request);
-  const limitPerHour = env.server.NEWSLETTER_RATE_LIMIT_PER_HOUR;
-  if (isRateLimited(ipAddress, limitPerHour)) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: "Too many subscription attempts. Please try again later.",
-      },
-      { status: 429 },
-    );
-  }
+  const { email, source } = parsed.data;
+  const normalizedEmail = email.trim().toLowerCase();
 
+  // Rate limit check
   try {
-    const supabase = createServerSupabaseClient();
-    const { email, source } = parsedBody.data;
-    const normalizedEmail = normalizeEmail(email);
-
-    const { error: upsertError } = await supabase.from("newsletter_subscribers").upsert(
-      {
-        email: normalizedEmail,
-        source,
-        status: "active",
-      },
-      {
-        onConflict: "email",
-      },
-    );
-
-    if (upsertError) {
+    if (await isRateLimited(normalizedEmail)) {
       return NextResponse.json(
-        {
-          success: false,
-          error: "Unable to save your subscription right now.",
-        },
-        { status: 500 },
+        { success: false, error: "Too many attempts. Please try again later." },
+        { status: 429 },
       );
     }
-
-    const { error: queuedUpdateError } = await supabase
-      .from("newsletter_subscribers")
-      .update({
-        substack_sync_queued_at: new Date().toISOString(),
-      })
-      .eq("email", normalizedEmail)
-      .eq("substack_synced", false)
-      .is("sync_batch_id", null);
-
-    if (queuedUpdateError) {
-      console.error("Failed to update newsletter queue timestamp", {
-        email: normalizedEmail,
-        error: queuedUpdateError.message,
-      });
-    }
-
-    return NextResponse.json({
-      success: true,
-      message: "You're subscribed!",
-      substackSynced: false,
-      syncQueued: true,
-    });
   } catch {
+    // If rate limit check fails, proceed anyway
+  }
+
+  const hasSupabase = !!(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+  const hasResend = !!process.env.RESEND_API_KEY;
+
+  if (!hasSupabase && !hasResend) {
     return NextResponse.json(
-      {
-        success: false,
-        error: "Subscription service is not configured yet.",
-      },
-      { status: 500 },
+      { success: false, error: "Unable to subscribe right now. Please try again later." },
+      { status: 503 },
     );
   }
+
+  // Save to both simultaneously — neither failure blocks the other
+  await Promise.allSettled([
+    saveToSupabase(normalizedEmail, source),
+    saveToResend(normalizedEmail),
+  ]);
+
+  return NextResponse.json({ success: true, message: "You're subscribed!" });
 }

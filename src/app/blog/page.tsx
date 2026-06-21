@@ -1,88 +1,82 @@
-import { Container } from "@/components/layout/container";
-import { Section } from "@/components/layout/section";
-import { PostCard } from "@/components/blog/post-card";
-import { TagFilter } from "@/components/blog/tag-filter";
-import { Pagination } from "@/components/ui/pagination";
+import { Suspense } from "react";
+import type { Metadata } from "next";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { getBlogPostsOnly, getAvailableTags } from "@/lib/strapi/blog";
 import { BLOG_TAGS } from "@/lib/strapi/types";
-import type { Metadata } from "next";
+import BlogListingContent from "./BlogListingContent";
 
 export const metadata: Metadata = {
-  title: "Blog",
-  description: "Thoughts, essays, and stories by Itunu Adegbayi.",
+  title: "Blog — Itunu Adegbayi",
+  description:
+    "Thoughts on B2B content, SaaS marketing, and the craft of writing that converts.",
 };
 
-interface BlogPageProps {
-  searchParams: Promise<{ page?: string; tag?: string }>;
-}
-
-export default async function BlogPage({ searchParams }: BlogPageProps) {
+export default async function BlogPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tag?: string; page?: string }>;
+}) {
   const params = await searchParams;
-  const currentPage = Number(params.page) || 1;
   const currentTag = params.tag;
+  const currentPage = Number(params.page) || 1;
 
-  // Fetch blog posts with pagination
-  const { posts, meta } = await getBlogPostsOnly({
-    page: currentPage,
-    pageSize: 12,
-    tag: currentTag,
-  });
+  const [{ posts, meta }, allTags] = await Promise.all([
+    getBlogPostsOnly({ page: currentPage, pageSize: 60, tag: currentTag }),
+    getAvailableTags(),
+  ]);
 
-  // Get all available tags for filtering, filtered to blog tags
-  const allTags = await getAvailableTags();
   const blogTags = allTags.filter((tag) =>
-    BLOG_TAGS.some((bt) => bt.toLowerCase() === tag.toLowerCase())
+    BLOG_TAGS.some((bt) => bt.toLowerCase() === tag.toLowerCase()),
   );
 
   return (
     <>
-      {/* Hero */}
-      <Section className="bg-bg-elevated pt-16 pb-12 sm:pt-20 sm:pb-16 md:pt-32 md:pb-20">
-        <Container>
-          <div className="mx-auto max-w-4xl text-center">
-            <p className="mb-4 text-body-sm font-semibold uppercase tracking-[0.4em] text-accent-primary">
-              Journal
-            </p>
-            <h1 className="mb-6 font-display text-display leading-tight text-text-primary">Blog</h1>
-            <p className="text-body-lg leading-relaxed text-text-secondary">
-              Thoughts, essays, and stories about culture, creativity, and craft.
-            </p>
-          </div>
-        </Container>
-      </Section>
+      <Navbar />
+      <main className="section-wrap section-block">
+        <header style={{ marginBottom: "var(--space-8)", textAlign: "center" }}>
+          <span className="kicker" style={{ marginBottom: "var(--space-3)", display: "block" }}>
+            Blog
+          </span>
+          <h1
+            style={{
+              fontSize: "var(--text-2xl)",
+              fontWeight: 800,
+              lineHeight: 1.08,
+              color: "var(--text-strong)",
+              fontFamily: "var(--font-display), sans-serif",
+              maxWidth: 560,
+              marginInline: "auto",
+            }}
+          >
+            Writing about what I know
+          </h1>
+          <p
+            style={{
+              fontSize: "var(--text-base)",
+              color: "var(--text-soft)",
+              marginTop: "var(--space-4)",
+              maxWidth: "54ch",
+              lineHeight: 1.7,
+              marginInline: "auto",
+            }}
+          >
+            Thoughts on B2B content strategy, SaaS marketing, and the craft of
+            writing that actually converts.
+          </p>
+        </header>
 
-      {/* Blog Posts */}
-      <Section className="bg-bg-page">
-        <Container>
-          {/* Tag Filter */}
-          {blogTags.length > 0 && <TagFilter tags={blogTags} currentTag={currentTag} />}
-
-          {posts.length > 0 ? (
-            <>
-              <div className="-mx-4 grid gap-4 sm:mx-0 sm:gap-6 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
-                {posts.map((post) => (
-                  <PostCard key={post.id} post={post} />
-                ))}
-              </div>
-
-              {/* Pagination */}
-              <Pagination
-                currentPage={meta.pagination.page}
-                totalPages={meta.pagination.pageCount}
-                totalItems={meta.pagination.total}
-              />
-            </>
-          ) : (
-            <div className="mx-auto max-w-2xl text-center">
-              <p className="text-body-lg text-text-secondary">
-                {currentTag
-                  ? `No posts found with the tag "${currentTag}". Try a different filter.`
-                  : "New posts coming soon. Check back for thoughts, essays, and stories."}
-              </p>
-            </div>
-          )}
-        </Container>
-      </Section>
+        <Suspense fallback={null}>
+          <BlogListingContent
+            posts={posts}
+            meta={meta}
+            tags={blogTags}
+            activeTag={currentTag}
+            basePath="/blog"
+          />
+        </Suspense>
+      </main>
+      <Footer />
     </>
   );
 }

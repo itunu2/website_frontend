@@ -1,48 +1,36 @@
 import type { NextConfig } from "next";
-import type { RemotePattern } from "next/dist/shared/lib/image-config";
-
-const strapiUrl = process.env.NEXT_PUBLIC_STRAPI_BASE_URL ?? "http://127.0.0.1:1337";
-
-const remotePatterns: RemotePattern[] = (() => {
-  const patterns: RemotePattern[] = [];
-
-  // Allow images from the Strapi backend
-  try {
-    const { protocol, hostname, port } = new URL(strapiUrl);
-    const normalizedProtocol = protocol.replace(":", "");
-    if (normalizedProtocol === "http" || normalizedProtocol === "https") {
-      patterns.push({
-        protocol: normalizedProtocol,
-        hostname,
-        port: port || undefined,
-        pathname: "/**",
-      });
-    }
-  } catch (error) {
-    if (process.env.NODE_ENV === "development") {
-      console.warn("Unable to parse NEXT_PUBLIC_STRAPI_BASE_URL for image optimization", error);
-    }
-  }
-
-  // Allow images from Supabase Storage
-  patterns.push({
-    protocol: "https",
-    hostname: "*.supabase.co",
-    pathname: "/storage/v1/object/public/**",
-  });
-
-  return patterns;
-})();
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
-    remotePatterns,
+    qualities: [100, 75],
     dangerouslyAllowLocalIP: true,
-    // Prefer AVIF then WebP — significantly smaller than JPEG/PNG at same quality.
     formats: ["image/avif", "image/webp"],
-    // Cache optimised images for 30 days on CDN / browser.
     minimumCacheTTL: 60 * 60 * 24 * 30,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
+        pathname: "/storage/v1/object/public/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.onrender.com",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "127.0.0.1",
+        port: "1337",
+        pathname: "/uploads/**",
+      },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "1337",
+        pathname: "/uploads/**",
+      },
+    ],
   },
   turbopack: {
     root: __dirname,
