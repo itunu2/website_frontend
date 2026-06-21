@@ -111,6 +111,7 @@ export interface BlogListParams {
   pageSize?: number;
   tag?: string;
   featured?: boolean;
+  q?: string;
 }
 
 export interface BlogListResponse {
@@ -180,17 +181,16 @@ export async function getPortfolioPosts(
     "filters[status][$eq]": "published",
   };
   if (params.tag) query["filters[tags][$containsi]"] = params.tag;
+  if (params.q) query["_q"] = params.q;
 
   try {
     const res = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>(
       "/api/blog-posts",
-      { query, cache: "force-cache", revalidate },
+      { query, cache: "no-store", revalidate },
     );
     const all = res.data.map(transformBlogPost);
-    // Writing page: only featured posts
-    const posts = params.tag
-      ? all.filter((p) => isPortfolioPost(p))
-      : all.filter((p) => p.isFeatured === true);
+    // Portfolio page: tag filter narrows to portfolio-tagged posts; no filter shows everything
+    const posts = params.tag ? all.filter((p) => isPortfolioPost(p)) : all;
     return { posts, meta: res.meta };
   } catch (err) {
     console.error("[strapi] getPortfolioPosts failed:", err);
@@ -212,11 +212,12 @@ export async function getBlogPostsOnly(
     "filters[status][$eq]": "published",
   };
   if (params.tag) query["filters[tags][$containsi]"] = params.tag;
+  if (params.q) query["_q"] = params.q;
 
   try {
     const res = await strapiFetch<StrapiCollectionResponse<BlogPostAttributes>>(
       "/api/blog-posts",
-      { query, cache: "force-cache", revalidate },
+      { query, cache: params.q ? "no-store" : "force-cache", revalidate },
     );
     const all = res.data.map(transformBlogPost);
     const posts = params.tag

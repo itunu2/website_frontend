@@ -67,6 +67,7 @@ export default function About() {
         </div>
 
         <div
+          className="about-img-col"
           style={{
             display: "flex",
             alignItems: "flex-start",
@@ -78,6 +79,7 @@ export default function About() {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="about-photo"
             style={{
               borderRadius: "var(--radius-lg)",
               overflow: "hidden",

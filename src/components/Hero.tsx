@@ -69,7 +69,7 @@ export default function Hero() {
               flexWrap: "wrap",
             }}
           >
-            <Link href="/#services" className="btn btn-primary">
+            <Link href="/portfolio" className="btn btn-primary">
               See my work
             </Link>
             <Link href="/#contact" className="btn btn-secondary">

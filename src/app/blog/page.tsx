@@ -22,7 +22,7 @@ export default async function BlogPage({
   const currentPage = Number(params.page) || 1;
 
   const [{ posts, meta }, allTags] = await Promise.all([
-    getBlogPostsOnly({ page: currentPage, pageSize: 12, tag: currentTag }),
+    getBlogPostsOnly({ page: currentPage, pageSize: 60, tag: currentTag }),
     getAvailableTags(),
   ]);
 
@@ -34,7 +34,7 @@ export default async function BlogPage({
     <>
       <Navbar />
       <main className="section-wrap section-block">
-        <header style={{ marginBottom: "var(--space-7)" }}>
+        <header style={{ marginBottom: "var(--space-8)", textAlign: "center" }}>
           <span className="kicker" style={{ marginBottom: "var(--space-3)", display: "block" }}>
             Blog
           </span>
@@ -45,7 +45,8 @@ export default async function BlogPage({
               lineHeight: 1.08,
               color: "var(--text-strong)",
               fontFamily: "var(--font-display), sans-serif",
-              maxWidth: 600,
+              maxWidth: 560,
+              marginInline: "auto",
             }}
           >
             Writing about what I know
@@ -55,8 +56,9 @@ export default async function BlogPage({
               fontSize: "var(--text-base)",
               color: "var(--text-soft)",
               marginTop: "var(--space-4)",
-              maxWidth: "58ch",
+              maxWidth: "54ch",
               lineHeight: 1.7,
+              marginInline: "auto",
             }}
           >
             Thoughts on B2B content strategy, SaaS marketing, and the craft of

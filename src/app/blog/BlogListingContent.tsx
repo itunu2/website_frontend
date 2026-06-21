@@ -1,9 +1,12 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import type { BlogPost, StrapiPaginationMeta } from "@/lib/strapi/types";
 import PostCard from "@/components/blog/PostCard";
+import PortfolioCard from "@/components/portfolio/PortfolioCard";
 import TagFilter from "@/components/blog/TagFilter";
 import Pagination from "@/components/blog/Pagination";
+import SearchBar from "@/components/SearchBar";
 
 export default function BlogListingContent({
   posts,
@@ -18,11 +21,43 @@ export default function BlogListingContent({
   activeTag?: string;
   basePath: string;
 }) {
+  const isPortfolio = basePath === "/portfolio";
+  const [query, setQuery] = useState("");
+
+  const filteredPosts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return posts;
+    return posts.filter(
+      (p) =>
+        p.title.toLowerCase().includes(q) ||
+        (p.description ?? "").toLowerCase().includes(q) ||
+        p.tags?.some((t) => t.toLowerCase().includes(q)),
+    );
+  }, [posts, query]);
+
+  const isSearching = query.trim().length > 0;
+
   return (
     <>
-      <TagFilter tags={tags} activeTag={activeTag} basePath={basePath} />
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "var(--space-4)",
+          marginBottom: "var(--space-5)",
+        }}
+      >
+        <TagFilter tags={tags} activeTag={activeTag} basePath={basePath} />
+        <SearchBar
+          value={query}
+          onChange={setQuery}
+          placeholder={isPortfolio ? "Search portfolio…" : "Search articles…"}
+        />
+      </div>
 
-      {posts.length === 0 ? (
+      {filteredPosts.length === 0 ? (
         <div
           style={{
             textAlign: "center",
@@ -31,32 +66,49 @@ export default function BlogListingContent({
           }}
         >
           <p style={{ fontSize: "var(--text-lg)", fontWeight: 600, marginBottom: "var(--space-3)" }}>
-            {activeTag ? `No posts tagged "${activeTag}" yet.` : "No posts published yet."}
+            {isSearching
+              ? `No results for "${query.trim()}".`
+              : activeTag
+              ? `No posts tagged "${activeTag}" yet.`
+              : "No posts published yet."}
           </p>
           <p style={{ fontSize: "var(--text-sm)" }}>
-            Check back soon — new content is on the way.
+            {isSearching ? "Try a different keyword." : "Check back soon — new content is on the way."}
           </p>
         </div>
       ) : (
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: "var(--space-5)",
-          }}
-        >
-          {posts.map((post, i) => (
-            <PostCard
-              key={post.id}
-              post={post}
-              index={i}
-              basePath={basePath}
-            />
-          ))}
-        </div>
+        <>
+          {isSearching && (
+            <p
+              style={{
+                fontSize: "var(--text-sm)",
+                color: "var(--text-soft)",
+                marginBottom: "var(--space-4)",
+              }}
+            >
+              {filteredPosts.length} result{filteredPosts.length !== 1 ? "s" : ""} for &ldquo;{query.trim()}&rdquo;
+            </p>
+          )}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(auto-fill, minmax(${isPortfolio ? "300px" : "280px"}, 1fr))`,
+              gap: "var(--space-5)",
+            }}
+          >
+            {filteredPosts.map((post, i) =>
+              isPortfolio ? (
+                <PortfolioCard key={post.id} post={post} index={i} />
+              ) : (
+                <PostCard key={post.id} post={post} index={i} basePath={basePath} />
+              ),
+            )}
+          </div>
+        </>
       )}
 
-      <Pagination meta={meta} basePath={basePath} />
+      {/* Hide pagination when actively searching — all matches shown in-place */}
+      {!isSearching && <Pagination meta={meta} basePath={basePath} />}
     </>
   );
 }

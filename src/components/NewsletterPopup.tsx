@@ -6,8 +6,8 @@ import { X } from "lucide-react";
 import NewsletterForm from "@/components/NewsletterForm";
 
 const STORAGE_KEY = "newsletter-popup-dismissed";
-const TRIGGER_DELAY = 30_000; // 30 seconds
-const TRIGGER_SCROLL = 0.5; // 50% page scroll
+const TRIGGER_DELAY = 60_000; // 60 seconds — enough time to read, not intrusive
+const TRIGGER_SCROLL = 0.72; // 72% page scroll — user is genuinely engaged
 
 export default function NewsletterPopup() {
   const [show, setShow] = useState(false);
@@ -84,6 +84,7 @@ export default function NewsletterPopup() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.96 }}
             transition={{ type: "spring", damping: 28, stiffness: 380 }}
+            className="newsletter-popup"
             style={{
               position: "fixed",
               bottom: "var(--space-6)",

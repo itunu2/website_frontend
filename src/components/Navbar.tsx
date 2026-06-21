@@ -4,17 +4,23 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const links = [
-  { label: "About", href: "/#about", weight: 500 },
-  { label: "My work", href: "/#services", weight: 500 },
-  { label: "Writing", href: "/writing", weight: 500 },
-  { label: "Blog", href: "/blog", weight: 500 },
-  { label: "Contact", href: "/#contact", weight: 700 },
+  { label: "Services", href: "/#services" },
+  { label: "About", href: "/#about" },
+  { label: "Portfolio", href: "/portfolio" },
+  { label: "Blog", href: "/blog" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export default function Navbar() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  const isActive = (href: string) =>
+    !href.startsWith("/#") &&
+    (pathname === href || pathname.startsWith(href + "/"));
 
   return (
     <nav
@@ -23,8 +29,9 @@ export default function Navbar() {
         top: 0,
         zIndex: 50,
         height: 84,
-        backdropFilter: "blur(10px)",
-        background: "color-mix(in oklch, var(--surface-base), white 22%)",
+        backdropFilter: "blur(14px)",
+        WebkitBackdropFilter: "blur(14px)",
+        background: "color-mix(in oklch, var(--surface-base), transparent 8%)",
         borderBottom: "1px solid var(--border-soft)",
       }}
     >
@@ -40,11 +47,7 @@ export default function Navbar() {
         {/* Brand mark */}
         <Link
           href="/"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 10,
-          }}
+          style={{ display: "flex", alignItems: "center", gap: 10 }}
         >
           <div
             style={{
@@ -60,7 +63,14 @@ export default function Navbar() {
               fontSize: "0.95rem",
               fontWeight: 700,
               letterSpacing: "0.02em",
+              transition: "transform 0.2s var(--ease-premium)",
             }}
+            onMouseEnter={(e) =>
+              ((e.currentTarget as HTMLElement).style.transform = "scale(1.07)")
+            }
+            onMouseLeave={(e) =>
+              ((e.currentTarget as HTMLElement).style.transform = "scale(1)")
+            }
           >
             IA
           </div>
@@ -79,27 +89,64 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop links */}
-        <div
-          className="hidden md:flex"
-          style={{ alignItems: "center", gap: 34 }}
-        >
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              style={{
-                fontFamily: "var(--font-display)",
-                fontSize: "1.03rem",
-                fontWeight: l.weight,
-                color: "var(--text-strong)",
-                transition: "opacity var(--duration-fast)",
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.7")}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
-            >
-              {l.label}
-            </a>
-          ))}
+        <div className="hidden md:flex" style={{ alignItems: "center", gap: 34 }}>
+          {links.map((l) => {
+            const active = isActive(l.href);
+            const isHash = l.href.startsWith("/#");
+            const isCtaLink = l.label === "Contact";
+
+            const sharedStyle: React.CSSProperties = {
+              fontFamily: "var(--font-display)",
+              fontSize: "1.03rem",
+              fontWeight: isCtaLink ? 700 : 500,
+              color: isCtaLink
+                ? "var(--accent-olive)"
+                : active
+                  ? "var(--text-strong)"
+                  : "var(--text-default)",
+              position: "relative",
+              transition: "color 0.2s",
+              paddingBottom: 2,
+            };
+
+            const content = (
+              <>
+                {l.label}
+                {active && (
+                  <motion.span
+                    layoutId="nav-underline"
+                    style={{
+                      position: "absolute",
+                      bottom: -4,
+                      left: 0,
+                      right: 0,
+                      height: 2,
+                      background: "var(--accent-olive)",
+                      borderRadius: 999,
+                    }}
+                  />
+                )}
+              </>
+            );
+
+            if (isHash) {
+              return (
+                <a
+                  key={l.label}
+                  href={l.href}
+                  style={sharedStyle}
+                  className="nav-link"
+                >
+                  {content}
+                </a>
+              );
+            }
+            return (
+              <Link key={l.label} href={l.href} style={sharedStyle} className="nav-link">
+                {content}
+              </Link>
+            );
+          })}
         </div>
 
         {/* Mobile toggle */}
@@ -121,7 +168,7 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Mobile drawer — absolutely positioned so it overlays page content */}
+      {/* Mobile drawer */}
       <AnimatePresence>
         {open && (
           <motion.div
@@ -152,21 +199,41 @@ export default function Navbar() {
                 paddingBottom: "var(--space-6)",
               }}
             >
-              {links.map((l) => (
-                <a
-                  key={l.label}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  style={{
-                    fontFamily: "var(--font-display)",
-                    fontSize: "1.28rem",
-                    fontWeight: l.weight,
-                    color: "var(--text-strong)",
-                  }}
-                >
-                  {l.label}
-                </a>
-              ))}
+              {links.map((l) => {
+                const isHash = l.href.startsWith("/#");
+                if (isHash) {
+                  return (
+                    <a
+                      key={l.label}
+                      href={l.href}
+                      onClick={() => setOpen(false)}
+                      style={{
+                        fontFamily: "var(--font-display)",
+                        fontSize: "1.28rem",
+                        fontWeight: l.label === "Contact" ? 700 : 500,
+                        color: "var(--text-strong)",
+                      }}
+                    >
+                      {l.label}
+                    </a>
+                  );
+                }
+                return (
+                  <Link
+                    key={l.label}
+                    href={l.href}
+                    onClick={() => setOpen(false)}
+                    style={{
+                      fontFamily: "var(--font-display)",
+                      fontSize: "1.28rem",
+                      fontWeight: l.label === "Contact" ? 700 : 500,
+                      color: "var(--text-strong)",
+                    }}
+                  >
+                    {l.label}
+                  </Link>
+                );
+              })}
             </div>
           </motion.div>
         )}

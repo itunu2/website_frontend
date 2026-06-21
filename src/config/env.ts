@@ -31,7 +31,8 @@ const serverSchema = z.object({
   NEWSLETTER_ADMIN_TOKEN: z.string().min(1).optional(),
   NEWSLETTER_WEBHOOK_SECRET: z.string().min(1).optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
-  CONTACT_EMAIL_TO: z.string().email().default("adegbayiitunuoluwa@gmail.com"),
+  RESEND_AUDIENCE_ID: z.string().optional(), // Deprecated — Resend moved to global contacts in 2025
+  CONTACT_EMAIL_TO: z.string().email().optional(),
 });
 
 type ServerEnv = z.infer<typeof serverSchema>;

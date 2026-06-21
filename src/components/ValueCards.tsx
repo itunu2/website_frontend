@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import HandDrawnArrow from "./HandDrawnArrow";
 
 const cards = [
   {
@@ -59,6 +58,7 @@ export default function ValueCards() {
             transition={{ duration: 0.58, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] }}
             whileHover={{ y: -5, transition: { duration: 0.2 } }}
             className={`value-note ${noteClasses[i]}`}
+            {...(i === 2 ? { "data-arrow-start": "true" } : {})}
           >
             <div className="value-note-top">
               <span className="value-index">0{i + 1}</span>
@@ -74,23 +74,6 @@ export default function ValueCards() {
           </motion.article>
         ))}
 
-      </div>
-
-      {/* Decorative hand-drawn arrow: card-3 → loop → down into "How" */}
-      <div
-        className="value-arrow"
-        aria-hidden="true"
-        style={{
-          position: "absolute",
-          left: "clamp(30px, 4vw, 70px)",
-          bottom: "clamp(-185px, -14vw, -130px)",
-          width: "clamp(400px, 50vw, 720px)",
-          height: "clamp(300px, 36vw, 520px)",
-          zIndex: 10,
-          pointerEvents: "none",
-        }}
-      >
-        <HandDrawnArrow />
       </div>
     </section>
   );

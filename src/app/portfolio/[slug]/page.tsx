@@ -7,7 +7,7 @@ import Footer from "@/components/Footer";
 import MarkdownRenderer from "@/components/blog/MarkdownRenderer";
 import { getBlogPosts, getBlogPostBySlug, getRelatedPosts } from "@/lib/strapi/blog";
 import { env } from "@/config/env";
-import PostCard from "@/components/blog/PostCard";
+import PortfolioCard from "@/components/portfolio/PortfolioCard";
 
 function resolveImageUrl(url: string): string {
   return url.startsWith("http")
@@ -53,7 +53,7 @@ function estimateReadingTime(content: string): number {
   return Math.max(1, Math.ceil(words / 238));
 }
 
-export default async function BlogPostPage({
+export default async function PortfolioPostPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -78,9 +78,8 @@ export default async function BlogPostPage({
     <>
       <Navbar />
       <article className="section-wrap" style={{ paddingTop: "var(--space-7)", paddingBottom: "var(--space-9)" }}>
-        {/* Back link */}
         <Link
-          href="/blog"
+          href="/portfolio"
           style={{
             fontSize: "var(--text-sm)",
             fontWeight: 600,
@@ -91,7 +90,7 @@ export default async function BlogPostPage({
             marginBottom: "var(--space-6)",
           }}
         >
-          ← Back to blog
+          ← Back to portfolio
         </Link>
 
         {/* Header — centered reading column */}
@@ -221,7 +220,6 @@ export default async function BlogPostPage({
           <MarkdownRenderer content={post.content} />
         </div>
 
-        {/* Related posts */}
         {relatedPosts.length > 0 && (
           <section style={{ marginTop: "var(--space-9)", maxWidth: 900, marginInline: "auto" }}>
             <h2
@@ -233,17 +231,17 @@ export default async function BlogPostPage({
                 marginBottom: "var(--space-5)",
               }}
             >
-              Related posts
+              Related work
             </h2>
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
                 gap: "var(--space-5)",
               }}
             >
               {relatedPosts.map((rp, i) => (
-                <PostCard key={rp.id} post={rp} index={i} basePath="/blog" />
+                <PortfolioCard key={rp.id} post={rp} index={i} />
               ))}
             </div>
           </section>

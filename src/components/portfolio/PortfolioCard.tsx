@@ -11,19 +11,15 @@ function resolveImageUrl(url: string): string {
   return `${env.client.NEXT_PUBLIC_STRAPI_BASE_URL}${url}`;
 }
 
-/* Deterministic gradient placeholder — varies per post title initial */
 function PlaceholderBg({ title }: { title: string }) {
-  const palettes = [
-    ["oklch(0.88 0.06 112)", "oklch(0.82 0.09 100)"],
-    ["oklch(0.88 0.06 86)", "oklch(0.83 0.08 78)"],
-    ["oklch(0.85 0.05 130)", "oklch(0.79 0.08 118)"],
+  const palettes: [string, string][] = [
+    ["oklch(0.81 0.08 112)", "oklch(0.74 0.11 100)"],
+    ["oklch(0.80 0.08 86)", "oklch(0.74 0.10 78)"],
+    ["oklch(0.77 0.07 130)", "oklch(0.71 0.10 118)"],
   ];
-  const idx = title.charCodeAt(0) % palettes.length;
-  const [from, to] = palettes[idx];
-
+  const [from, to] = palettes[title.charCodeAt(0) % palettes.length];
   return (
     <div
-      className="post-card-placeholder"
       style={{
         position: "absolute",
         inset: 0,
@@ -35,12 +31,12 @@ function PlaceholderBg({ title }: { title: string }) {
     >
       <span
         style={{
-          fontSize: "2.4rem",
+          fontSize: "3rem",
           fontWeight: 800,
           fontFamily: "var(--font-display), sans-serif",
-          color: "oklch(1 0 0 / 0.25)",
+          color: "oklch(1 0 0 / 0.2)",
+          letterSpacing: "-0.04em",
           userSelect: "none",
-          letterSpacing: "-0.03em",
         }}
       >
         {title.slice(0, 2).toUpperCase()}
@@ -49,23 +45,26 @@ function PlaceholderBg({ title }: { title: string }) {
   );
 }
 
-export default function PostCard({
+// Tags used internally for routing — don't show as content labels
+const INTERNAL_TAGS = new Set([
+  "portfolio", "commission", "featured-work", "client-work",
+]);
+
+export default function PortfolioCard({
   post,
   index = 0,
-  basePath = "/blog",
 }: {
   post: BlogPost;
   index?: number;
-  basePath?: string;
 }) {
   const imageUrl = post.featuredImage?.data?.attributes?.url;
-  const imageAlt =
-    post.featuredImage?.data?.attributes?.alternativeText ?? post.title;
+  const imageAlt = post.featuredImage?.data?.attributes?.alternativeText ?? post.title;
   const date = new Date(post.publishedDate).toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+  const contentTags = post.tags?.filter((t) => !INTERNAL_TAGS.has(t)) ?? [];
 
   return (
     <motion.article
@@ -73,10 +72,10 @@ export default function PostCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.45, delay: index * 0.06 }}
-      whileHover={{ y: -5, transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] } }}
+      whileHover={{ y: -6, transition: { duration: 0.22, ease: [0.22, 1, 0.36, 1] } }}
       style={{
         background:
-          "linear-gradient(172deg, oklch(0.97 0.01 94) 0%, oklch(0.95 0.012 96) 100%)",
+          "linear-gradient(168deg, oklch(0.975 0.008 94) 0%, oklch(0.955 0.012 100) 100%)",
         borderRadius: "var(--radius-md)",
         border: "1px solid var(--border-soft)",
         overflow: "hidden",
@@ -88,28 +87,34 @@ export default function PostCard({
           "box-shadow var(--duration-md) var(--ease-premium), border-color var(--duration-md)",
       }}
       onHoverStart={(e) => {
-        (e.target as HTMLElement).closest("article")!.style.boxShadow =
-          "var(--shadow-lift)";
-        (e.target as HTMLElement).closest("article")!.style.borderColor =
-          "color-mix(in oklch, var(--accent-olive), transparent 72%)";
+        const article = (e.target as HTMLElement).closest("article");
+        if (article) {
+          article.style.boxShadow = "var(--shadow-lift)";
+          article.style.borderColor =
+            "color-mix(in oklch, var(--accent-olive), transparent 60%)";
+        }
       }}
       onHoverEnd={(e) => {
-        (e.target as HTMLElement).closest("article")!.style.boxShadow = "";
-        (e.target as HTMLElement).closest("article")!.style.borderColor = "";
+        const article = (e.target as HTMLElement).closest("article");
+        if (article) {
+          article.style.boxShadow = "";
+          article.style.borderColor = "";
+        }
       }}
     >
       <Link
-        href={`${basePath}/${post.slug}`}
+        href={`/portfolio/${post.slug}`}
         style={{ display: "flex", flexDirection: "column", height: "100%" }}
       >
-        {/* Image / placeholder */}
+        {/* Image — 3:2 ratio for editorial feel */}
         <div
           style={{
             position: "relative",
             width: "100%",
-            aspectRatio: "16 / 9",
+            aspectRatio: "3 / 2",
             overflow: "hidden",
             background: "var(--surface-soft)",
+            flexShrink: 0,
           }}
         >
           {imageUrl ? (
@@ -117,10 +122,10 @@ export default function PostCard({
               src={resolveImageUrl(imageUrl)}
               alt={imageAlt}
               fill
-              sizes="(max-width: 620px) 100vw, (max-width: 1080px) 50vw, 33vw"
+              sizes="(max-width: 640px) 100vw, (max-width: 1080px) 50vw, 33vw"
               style={{
                 objectFit: "cover",
-                transition: "transform 0.45s var(--ease-premium)",
+                transition: "transform 0.5s var(--ease-premium)",
               }}
               className="post-card-image"
             />
@@ -139,25 +144,27 @@ export default function PostCard({
             flex: 1,
           }}
         >
-          {/* Tags */}
-          {post.tags?.length > 0 && (
+          {/* Content-type tags */}
+          {contentTags.length > 0 && (
             <div style={{ display: "flex", gap: "var(--space-2)", flexWrap: "wrap" }}>
-              {post.tags.slice(0, 3).map((tag) => (
+              {contentTags.slice(0, 2).map((tag) => (
                 <span
                   key={tag}
                   style={{
-                    fontSize: "0.7rem",
+                    fontSize: "0.68rem",
                     fontWeight: 700,
                     textTransform: "uppercase",
-                    letterSpacing: "0.08em",
+                    letterSpacing: "0.09em",
                     color: "var(--accent-deep)",
-                    background: "color-mix(in oklch, var(--accent-gold), white 40%)",
-                    border: "1px solid color-mix(in oklch, var(--accent-gold), black 12%)",
+                    background:
+                      "color-mix(in oklch, var(--accent-olive), white 82%)",
+                    border:
+                      "1px solid color-mix(in oklch, var(--accent-olive), white 64%)",
                     padding: "4px 10px",
                     borderRadius: "var(--radius-pill)",
                   }}
                 >
-                  {tag}
+                  {tag.replace(/-/g, " ")}
                 </span>
               ))}
             </div>
@@ -166,9 +173,9 @@ export default function PostCard({
           {/* Title */}
           <h3
             style={{
-              fontSize: "var(--text-lg)",
-              fontWeight: 700,
-              lineHeight: 1.25,
+              fontSize: "var(--text-xl)",
+              fontWeight: 800,
+              lineHeight: 1.18,
               color: "var(--text-strong)",
               fontFamily: "var(--font-display), sans-serif",
             }}
@@ -176,15 +183,15 @@ export default function PostCard({
             {post.title}
           </h3>
 
-          {/* Excerpt */}
+          {/* Description — 2-line clamp */}
           {post.description && (
             <p
               style={{
                 fontSize: "var(--text-sm)",
                 color: "var(--text-soft)",
-                lineHeight: 1.6,
+                lineHeight: 1.62,
                 display: "-webkit-box",
-                WebkitLineClamp: 3,
+                WebkitLineClamp: 2,
                 WebkitBoxOrient: "vertical",
                 overflow: "hidden",
               }}
@@ -193,7 +200,7 @@ export default function PostCard({
             </p>
           )}
 
-          {/* Footer row */}
+          {/* Footer */}
           <div
             style={{
               display: "flex",
@@ -205,10 +212,7 @@ export default function PostCard({
             }}
           >
             <span
-              style={{
-                fontSize: "var(--text-xs)",
-                color: "var(--text-soft)",
-              }}
+              style={{ fontSize: "var(--text-xs)", color: "var(--text-soft)" }}
             >
               {date}
             </span>
@@ -220,7 +224,7 @@ export default function PostCard({
                 letterSpacing: "0.02em",
               }}
             >
-              Read →
+              View work →
             </span>
           </div>
         </div>

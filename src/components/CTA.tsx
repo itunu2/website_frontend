@@ -35,8 +35,8 @@ export default function CTA() {
     width: "100%",
     padding: "var(--space-3) var(--space-4)",
     borderRadius: "var(--radius-sm)",
-    border: "1px solid oklch(0.96 0.01 100 / 0.25)",
-    background: "oklch(0.96 0.01 100 / 0.08)",
+    border: "1px solid oklch(0.96 0.01 100 / 0.22)",
+    background: "oklch(0.96 0.01 100 / 0.07)",
     color: "var(--text-inverse)",
     fontSize: "var(--text-sm)",
     fontFamily: "inherit",
@@ -114,14 +114,15 @@ export default function CTA() {
                 onSubmit={handleSubmit}
                 style={{ display: "flex", flexDirection: "column", gap: "var(--space-4)" }}
               >
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-4)" }}>
+                <div style={{ display: "flex", gap: "var(--space-4)", flexWrap: "wrap" }}>
                   <input
                     type="text"
                     placeholder="Your name"
                     required
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    style={inputStyle}
+                    style={{ ...inputStyle, flex: "1 1 200px" }}
+                    className="cta-input"
                   />
                   <input
                     type="email"
@@ -129,7 +130,8 @@ export default function CTA() {
                     required
                     value={form.email}
                     onChange={(e) => setForm({ ...form, email: e.target.value })}
-                    style={inputStyle}
+                    style={{ ...inputStyle, flex: "1 1 200px" }}
+                    className="cta-input"
                   />
                 </div>
                 <input
@@ -139,6 +141,7 @@ export default function CTA() {
                   value={form.subject}
                   onChange={(e) => setForm({ ...form, subject: e.target.value })}
                   style={inputStyle}
+                  className="cta-input"
                 />
                 <textarea
                   placeholder="Tell me about your project..."
@@ -147,6 +150,7 @@ export default function CTA() {
                   value={form.message}
                   onChange={(e) => setForm({ ...form, message: e.target.value })}
                   style={{ ...inputStyle, resize: "vertical", minHeight: 120 }}
+                  className="cta-input"
                 />
                 {status === "error" && (
                   <p style={{ fontSize: "var(--text-xs)", color: "oklch(0.7 0.18 30)" }}>

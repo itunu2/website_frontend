@@ -54,9 +54,9 @@ export async function POST(request: NextRequest) {
 
   // 2. Send notification email via Resend
   const resendKey = process.env.RESEND_API_KEY;
-  const contactTo = process.env.CONTACT_EMAIL_TO || "adegbayiitunuoluwa@gmail.com";
+  const contactTo = process.env.CONTACT_EMAIL_TO;
 
-  if (resendKey) {
+  if (resendKey && contactTo) {
     try {
       const resend = new Resend(resendKey);
       await resend.emails.send({

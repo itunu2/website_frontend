@@ -614,6 +614,64 @@ button:focus-visible,
   .footer-shell .section-wrap > div:first-child {
     grid-template-columns: 1fr !important;
   }
+
+  /* Show about photo above the text on mobile for stronger personal brand */
+  .about-img-col {
+    order: -1;
+  }
+
+  .about-photo {
+    max-height: 300px;
+    width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Shrink section vertical padding so mobile pages don't feel too tall */
+  .section-block {
+    padding-block: clamp(44px, 7vw, 66px);
+  }
+
+  /* Stats: reduce huge numbers, stack number + label vertically in each cell */
+  :root {
+    --text-stat: clamp(2.2rem, 1.6rem + 3vw, 3rem);
+  }
+
+  .stat-item {
+    flex-direction: column !important;
+    gap: var(--space-1) !important;
+    padding: var(--space-3) var(--space-2) !important;
+    text-align: center;
+  }
+
+  .stat-label {
+    text-align: center !important;
+  }
+
+  /* Full-width submit button in CTA form on small screens */
+  .cta-section form .btn {
+    width: 100%;
+  }
+
+  /* Value card min-height even smaller on phones */
+  .value-note {
+    padding: clamp(18px, 4vw, 28px);
+  }
+}
+
+@media (max-width: 480px) {
+  /* Newsletter popup: full-width centered strip at bottom on small phones */
+  .newsletter-popup {
+    right: var(--space-4) !important;
+    left: var(--space-4) !important;
+    width: auto !important;
+    bottom: var(--space-4) !important;
+  }
+
+  /* Slightly smaller hero heading on very small phones */
+  :root {
+    --text-hero: clamp(2.1rem, 1.6rem + 3.5vw, 3rem);
+  }
 }
 
 @media (max-width: 620px) {
@@ -632,6 +690,105 @@ button:focus-visible,
 @media (max-width: 460px) {
   .nav-brand-name {
     font-size: 1.3rem !important;
+  }
+}
+
+/* ── Nav link hover ── */
+.nav-link {
+  text-decoration: none;
+  transition: color 0.18s var(--ease-premium), opacity 0.18s;
+}
+.nav-link:hover {
+  color: var(--accent-olive) !important;
+}
+
+/* ── Featured portfolio card hover ── */
+.portfolio-featured-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lift) !important;
+}
+.portfolio-featured-card:hover .featured-card-img {
+  transform: scale(1.04);
+}
+
+/* ── Post card image hover zoom ── */
+article:hover .post-card-image {
+  transform: scale(1.05);
+}
+
+/* ── Prose content (blog / portfolio post body) ── */
+.prose-content {
+  line-height: 1.82;
+  color: var(--text-default);
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Justified text on screens wide enough to avoid rivers */
+@media (min-width: 560px) {
+  .prose-content p {
+    text-align: justify;
+    text-align-last: left;
+    hyphens: auto;
+    -webkit-hyphens: auto;
+    overflow-wrap: break-word;
+  }
+}
+
+/* First paragraph after a heading gets slightly larger text */
+.prose-content h2 + p,
+.prose-content h3 + p {
+  font-size: calc(var(--text-base) * 1.04);
+}
+
+/* Table row hover */
+.prose-content tr:hover td {
+  background: color-mix(in oklch, var(--surface-soft), transparent 50%);
+}
+
+/* ── Contact / CTA form inputs ── */
+.cta-input {
+  transition: border-color 0.2s, background-color 0.2s, box-shadow 0.2s;
+}
+.cta-input:focus {
+  border-color: oklch(0.96 0.01 100 / 0.55) !important;
+  background: oklch(0.96 0.01 100 / 0.13) !important;
+  box-shadow: 0 0 0 3px oklch(0.96 0.01 100 / 0.12) !important;
+  outline: none;
+}
+.cta-input::placeholder {
+  color: oklch(0.96 0.01 100 / 0.38);
+}
+
+/* ── Stats row separator ── */
+.stat-item + .stat-item {
+  border-left: 1px solid var(--border-soft);
+}
+
+@media (max-width: 500px) {
+  .stat-item + .stat-item {
+    border-left: none;
+    border-top: 1px solid var(--border-soft);
+  }
+}
+
+/* ── Accordion item hover ── */
+.accordion-trigger:hover {
+  color: color-mix(in oklch, var(--accent-deep), black 4%) !important;
+}
+
+/* ── Accordion content padding fix ── */
+.accordion-content > p {
+  max-width: none;
+}
+
+/* ── Portfolio page responsive ── */
+@media (max-width: 860px) {
+  .portfolio-featured-card {
+    grid-template-columns: 1fr !important;
+  }
+  .portfolio-featured-card > div:last-child {
+    min-height: 260px;
   }
 }
 

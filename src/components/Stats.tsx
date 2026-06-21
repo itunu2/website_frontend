@@ -74,15 +74,17 @@ export default function Stats() {
         </motion.h2>
 
         <div
+          className="stats-grid"
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+            gridTemplateColumns: "repeat(3, 1fr)",
             gap: "var(--grid-gap-md)",
           }}
         >
           {stats.map((s, i) => (
             <motion.div
               key={i}
+              className="stat-item"
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.3 }}
@@ -113,7 +115,7 @@ export default function Stats() {
                   fontSize: "var(--text-xs)",
                   fontWeight: 700,
                   color: "var(--text-strong)",
-                  lineHeight: 1.2,
+                  lineHeight: 1.3,
                   textAlign: "left",
                   textTransform: "uppercase",
                   letterSpacing: "0.07em",
